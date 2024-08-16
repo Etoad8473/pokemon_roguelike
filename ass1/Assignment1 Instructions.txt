@@ -1,0 +1,38 @@
+80*21 map
+
+TYPES OF TERRAIN:
+water
+mountain
+forest
+tall grass
+short grass
+
+
+HOW TO:
+make them rectangles, overriding previous
+-border of map has impassable borders (rocks & trees)
+-short grass everywhere first (inside rock and tree border)
+-place water
+-place mountain
+-place forest
+-tall grass
+randomly place some trees & tall grass
+
+
+choos pos of gate for all 4 walls
+connect left and right gates
+-randomly choose X pos to turn road, randomly choose Y to turn road again
+
+to get direction of path: (y1 - y2)/|(y1 - y2)|
+
+
+Place pokemark & pokecenter next to row
+2x2 m & 2x2 cc
+if not next to road,, build road to it
+
+BETTER:
+choose random points as the terrain
+using queue grow each terrain type by infecting adjacent cells until you hit another terrain type
+each terrain has gradient elevation between them
+roads use dijkstras with elevation as additional weight,, and penalty weight for being near the edge
+scatter boulders & trees

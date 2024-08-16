@@ -1,0 +1,26 @@
+FUNCTIONALITY:
+This program runs the game, moving the NPCs around the map
+Hikers and rivals will chase the PC (player Character), other NPCs will move as per the spec
+
+
+TO RUN:
+make
+./poke --numtrainers <number>
+
+you can run it without the switch and it will default to 5
+<number> must be between [-1:50], -1 sets it to the default
+
+
+NOTES:
+-There is an intentional short pause between map printings for readability
+-The PC always spawns in front of the west gate, and does not move (as per the spec)
+-When NPC's try to enter a character occupied space, they do not move (allowed as per spec)
+    -this occasionally results in characters getting stuck on eachother if they are both trying to move into eachothers space
+-Hikers and Rivals look drunk: 
+    -they are taking the shortest path but because diagonals are equal length, sometimes it looks like they stumble around
+-Rare 'weird' looking behavior (accepted by the spec):
+    -wanderers can appear stuck if they spawn on a single piece of tall grass (I've never seen this but it technically can happen, but is still technically correct as per spec)
+
+
+BUGS:
+none that I know of

@@ -1,0 +1,28 @@
+MOVEMENT:
+*create the entire 401:401 world made of different maps
+--the gates have to align
+-gates positions are controlled
+-make the map its own data struct
+*make it controllable from command line - ("Current position is 200WX200N (-200, -200) Enter command: ")
+--commands: n,e,s,w,q,f
+--f x y
+---READING INPUT: scanf("%d %d", x y )
+
+EXAMPLE
+while((c = getc())){
+    switch(c);
+        case 'q': 
+            exit();
+            break;
+        case 'f': 
+            scanf("%d %d", &x &y);
+}
+
+
+To do:
+*make the road in points controlled
+
+
+Notes:
+map_t *world[401][401] //if it is NOT a pointer, the array would be number_of_tiles * bytes_in_map
+//with it being a pointer, the array is only num_of_tiles * 8 bytes (pointer size)

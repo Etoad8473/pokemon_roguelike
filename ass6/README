@@ -1,0 +1,16 @@
+FUNCTIONALITY:
+This week you can move between maps and fly to new maps. 
+
+
+TO RUN:
+make
+./poke
+
+
+NOTES:
+-when pressing escape from any cutscene (fly, trainer list, pokebattle) it takes just a second to load
+-the inputs of the fly command go past the height of the default terminal size
+
+
+BUGS:
+none that I know of.

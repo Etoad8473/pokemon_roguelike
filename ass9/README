@@ -1,0 +1,18 @@
+FUNCTIONALITY:
+Pokemon game with wild pokemon battles and trainer battles
+
+TO RUN:
+make
+./poke
+
+
+NOTES:
+
+NOT IMPLEMENTED:
+-Items (pokeballs, revives, healing potions)
+-Switching between pokemon mid battle
+
+BUGS:
+It's not super stable, I had a stable version but tried to add the remaining features
+with too little time, messing up what I did have working perfectly
+It works for the most part though.
