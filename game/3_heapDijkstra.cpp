@@ -1,46 +1,6 @@
 #include "0_pokemonH.h"
 
 
-Node* hikerPMap[HEIGHT][WIDTH] = {NULL};
-Node* rivalPMap[HEIGHT][WIDTH] = {NULL};
-// //adjacent offsets
-// int adjVer[8]={0,-1,-1,-1,0,1,1,1};
-// int adjHor[8]={1,1,0,-1,-1,-1,0,1};
-
-// int hikerW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 15, 10, 15, 15, SHRT_MAX, SHRT_MAX};
-// int rivalW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 20, 10, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX};
-// char terrTypes[NUMTERRAINTYPES]={'+','$','#','p','c',':','.','%','^','~','='};
-
-
-
-
-
-
-
-
-// int main(int argc, char* argv[])
-// {
-//     srand(time(NULL));
-
-//     Map *m = createMapTile(200,200,-1,-1,-1,-1);
-//     int playerY = 12;
-//     int playerX = 40;
-//     spawnCharacterHelper('a',m,playerY,playerX,0);
-//     printMap(m);
-//     //printw("trying dijkstra\n");
-
-//     initPathMap(hikerPMap);//NEED TO INITIALIZE FOR ALL THIS TO WORK
-//     //printPathMap(hikerPMap);
-
-//     dijkstra(m,hikerW,hikerPMap,playerY,playerX);
-//     printw("\n--HikerMap--\n");
-//     printPathMap(hikerPMap);
-//     dijkstra(m,rivalW,hikerPMap,playerY,playerX);
-//     printw("\n--RivalMap--\n");
-//     printPathMap(hikerPMap);
-
-//     return 0;
-// }
 
 
 

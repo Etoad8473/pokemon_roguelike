@@ -1,5 +1,5 @@
 FUNCTIONALITY:
-Pokemon game with wild pokemon encounters and trainer pokemon
+Pokemon game with wild pokemon battles and trainer battles
 
 TO RUN:
 make
@@ -7,8 +7,12 @@ make
 
 
 NOTES:
--spawn rate is 1/5 in grass
 
+NOT IMPLEMENTED:
+-Items (pokeballs, revives, healing potions)
+-Switching between pokemon mid battle
 
 BUGS:
-none that I know of.
+It's not super stable, I had a stable version but tried to add the remaining features
+with too little time, messing up what I did have working perfectly
+It works for the most part though.

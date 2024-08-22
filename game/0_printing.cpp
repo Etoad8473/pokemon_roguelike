@@ -9,32 +9,39 @@ void printMessage(const char* s)
     MESSAGEprint<<s;
 }
 
-void printMap(Map *m) {
+void printMap(Map *m)
+{
     clear();
-    printw("%s\n",MESSAGEprint.str().c_str());
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
+    printw("%s\n", MESSAGEprint.str().c_str());
+    for (int i = 0; i < HEIGHT; i++)
+    {
+        for (int j = 0; j < WIDTH; j++)
+        {
             char c = m->map[i][j];
-            switch(c)//render raw map
+            switch (c) // render raw map
             {
-                case '+':
-                    c = '%';
-                    break;
-                case '$':
-                    c = '^';
-                    break;
-                case '=':
-                    c = '#';
-                    break;            
+            case '+':
+                c = '%';
+                break;
+            case '$':
+                c = '^';
+                break;
+            case '=':
+                c = '#';
+                break;
             }
 
-            if(m->cMap[i][j])
+            if (m->cMap[i][j])
             {
-                char ct = m->cMap[i][j]->character; //character type
-                if(ct == 'a')
-                    {c = '@';}
+                char ct = m->cMap[i][j]->character; // character type
+                if (ct == 'a')
+                {
+                    c = '@';
+                }
                 else
-                    {c = ct;}
+                {
+                    c = ct;
+                }
             }
 
             printw("%c", c);
@@ -42,11 +49,8 @@ void printMap(Map *m) {
         printw("\n");
     }
     printw("World Coordinates- X:%d Y:%d (index y%d,x%d)\n ", m->worldX - 200, 200 - m->worldY, m->worldY, m->worldX);
-    printw("%s",DEBUGprint.str().c_str());
+    printw("%s", DEBUGprint.str().c_str());
     DEBUGprint.str("");
-    //DEBUGGING
-    // printHeapShort(m->turnHeap,5);
-    // printw("Player Y:%d, X:%d\n",PLAYER->y,PLAYER->x);
     refresh();
 }
 

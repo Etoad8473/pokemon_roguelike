@@ -35,6 +35,7 @@ Map* initializeGame(int numNPCs)
 
     //spawnCharacter (order: 0)
     Player* pc = (Player*)spawnCharacterHelper('a', m, m->w, 1, 0);//add to turnheap, internal & map pos updated
+    pc->pokeballs = 3;
     PLAYER = pc;        //set global reference
     
     dijkstra(m,hikerW,hikerPMap);

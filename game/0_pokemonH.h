@@ -18,14 +18,25 @@
 #include <unordered_map>
 #include <vector>
 
+
+using namespace std;
+
 #define HEIGHT 21
 #define WIDTH 80
 #define WORLDSIZE 401
 #define NUMTERRAINTYPES 11
 #define DEFAULT_NUM_TRAINERS 5
 #define NPC_SPAWN_ATTEMPTS 10
+#define ESCAPE_KEY 27
 
-using namespace std;
+enum STAT{
+    hpSTAT,
+    attackSTAT,
+    defenseSTAT,
+    speedSTAT,
+    spAttackSTAT,
+    spDefSTAT
+};
 
 
 class Map;
@@ -51,6 +62,8 @@ class Character{
 
 class Player : public Character{
 
+    public:
+    int pokeballs;
 };
 
 class Npc : public Character{
@@ -284,6 +297,7 @@ class Pokemon{
     int gender;
     int shiny;
     PokemonInfo* info;
+    int baseStats[6];
 
     //dynamic
     int level;
@@ -297,7 +311,6 @@ class Pokemon{
 
     private:
     int IVStats[6];
-    int baseStats[6];
     
     void setLevel(int lvl);
     void setInitialLevelNStats(int manhattanDist);
@@ -324,6 +337,7 @@ extern Player* PLAYER;
 extern int quitGame;
 extern stringstream DEBUGprint;
 extern stringstream MESSAGEprint;
+extern Pokedex* POKEDEX;
 
 
 

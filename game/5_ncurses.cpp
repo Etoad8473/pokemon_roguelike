@@ -32,7 +32,7 @@ void gameRunner(int numNPC)
     //ship the loading bar:
     //sleep(2); 
     
-    startPokemon_cutscene();
+    startPokemon_cutscene(); // defined in 8
 
     printMap(m);
 
@@ -185,16 +185,32 @@ void pokemart_cutScene(Map *m, Character *pc){
     if(m->map[pc->y][pc->x] == 'M')
     {
         clear();
-        printw("\n\n\n\n\n\n-------Pokemart-------\n(press '<' to exit)\n");
+        printw("\n\n\n-------Pokemart-------\n(press '<' to exit)\n");
         refresh();
 
-        char ch;
-        while((ch = getch()) != '<')//keep fetching getch() until it equals '<'
+        while(getch() != '<')//keep fetching getch() until it equals '<'
+        {}
+
+
+        //resume the game console
+        clear();
+        printMap(m);
+        refresh();
+    }
+    else if(m->map[pc->y][pc->x] == 'C')
+    {
+        clear();
+        printw("\n\n\n-------Pokecenter-------\nYour pokemon have been healed\n(press '<' to exit)\n");
+        for(int i = 0; i < pc->pokeRoster->size();i++)
         {
-            clear();
-            printw("\n\n\n\n\n\n-------Pokemart-------\n(press '<' to exit)\n bruh you pressed %c\n", ch);
-            refresh();
+            Pokemon* p = &pc->pokeRoster->at(i);
+            p->currHP = p->stats[hpSTAT];
         }
+        refresh();
+
+        while(getch() != '<')//keep fetching getch() until it equals '<'
+        {}
+        
 
         //resume the game console
         clear();
@@ -292,28 +308,7 @@ void npcPrintStatement(Map* m, Character* pc, Character* npc)
 
 }
 
-//TODO: temporary pokemon battle
-void pokemonBattle_cutscene(Map* m, Character* npc)
-{
-    printMap(m);
-    clear();
 
-    printw("\n\n\n\n\n\n------------This is a pokemon battle with NPC #%d!---------\n(press 'esc' to win battle and continue)\n", npc->turnOrder);
-    for(int i = 0; i < npc->pokeRoster->size(); i++)
-    {
-        Pokemon p = npc->pokeRoster->at(i);
-        printw("%s lvl %d\n", p.info->name.c_str(), p.level);
-    }
-    
-    refresh();
-
-    //resume the game console
-    while(getch() != 27){}//searching for escape key
-    npc->defeated = 1;//Defeat npc
-    clear();
-    printMap(m);
-    refresh();
-}
 
 // void setMessage(char* string){
 //     errorMsg = string;

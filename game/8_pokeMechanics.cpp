@@ -94,11 +94,7 @@ Pokedex::Pokedex(){
 }
 
 
-
-
 Pokedex* POKEDEX = new Pokedex();
-
-
 
 
 /*
@@ -274,23 +270,6 @@ string Pokemon::toString()
 
 
 
-void wildPokemon_cutscene(Map* m)
-{
-    clear();
-
-    Pokemon wildP(-1,m->manhattan);
-
-    printw("\n\n\n\n\n\n------------A wild %s has appeared !---------\n(press 'esc' to win battle and continue)\n", wildP.info->name.c_str());
-    printw("%s\n", wildP.toString().c_str());
-    refresh();
-
-    //resume the game console
-    while(getch() != 27){}//searching for escape key
-    clear();
-    printMap(m);
-    refresh();
-}
-
 void startPokemon_cutscene()
 {
     clear();
@@ -326,41 +305,14 @@ void startPokemon_cutscene()
         refresh();
 
     }//searching for escape key
+
+    int choiceInd = choice - 1;
+    PLAYER->pokeRoster->push_back(choices[choiceInd]);
+
     clear();
 }
 
-// void loopGen()
-// {
-//     char input;
-//     bool running = true;
 
-
-
-//     Pokemon p(0,0);
-//     p.print();
-
-//     std::cout << "Press any key ('q' to quit): "<<endl;
-
-//     int test = 0;
-//     int newT = test/2;
-
-//     while (running) {
-//         std::cin >> input;
-//         if (input == 'q') {
-//             std::cout << "Exiting...\n";
-//             running = false; // Stop the loop if 'q' is pressed
-//         } 
-//         else 
-//         {
-//             Pokemon p(-1,0);
-//             p.print();
-//             p.levelUp();
-//             p.print();
-//             std::cout << "Press any key ('q' to quit): "<<endl;
-//         }
-//     }
-
-// }
 
 
 

@@ -15,28 +15,14 @@ Player* PLAYER = NULL;
 stringstream DEBUGprint = stringstream();
 stringstream MESSAGEprint = stringstream();
 
-
-/*Terminal start with csv parameter */
-// int main(int argc, char* argv[])
-// {
-//     if (argc == 2) //TODO: check all input types
-//     {
-//         string option = argv[1];
-//         return mainParseCSVs(option); //defined in 7_pokedex
-//     }
-//     else
-//     {
-//         printf("Usage:  ./poke <desired csv>\n");
-//         return 1;
-//     }
-
-// }
+Node* hikerPMap[HEIGHT][WIDTH] = {NULL};
+Node* rivalPMap[HEIGHT][WIDTH] = {NULL};
 
 
 
 int main(int argc, char* argv[])
 {
-    gameRunner(5);
+    gameRunner(5); //defined in 5
     return 0;
 }
 
