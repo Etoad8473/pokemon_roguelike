@@ -13,13 +13,6 @@ void printMap(Map *m)
 {
     clear();
     printw("%s\n", MESSAGEprint.str().c_str());
-    
-    GAMESCREEN->renderAllLines(m);
-    GAMESCREEN->printGameScreen();
-    refresh();
-    printw("player rotation (0 = w, 2 = n, 4 = e, 6 = s): %f\n", GAMESCREEN->playerRot);
-    printw("World Coordinates- X:%d Y:%d (index y%d,x%d)\n ", m->worldX - 200, 200 - m->worldY, m->worldY, m->worldX);
-
     for (int i = 0; i < HEIGHT; i++)
     {
         for (int j = 0; j < WIDTH; j++)
@@ -55,7 +48,7 @@ void printMap(Map *m)
         }
         printw("\n");
     }
-    
+    printw("World Coordinates- X:%d Y:%d (index y%d,x%d)\n ", m->worldX - 200, 200 - m->worldY, m->worldY, m->worldX);
     printw("%s", DEBUGprint.str().c_str());
     DEBUGprint.str("");
     refresh();

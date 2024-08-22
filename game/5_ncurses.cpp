@@ -72,16 +72,6 @@ Map* keyboardInput(Map *m, Character *pc)
                 quitGame = 1;
                 break;
             
-            case 'a':
-                GAMESCREEN->turnPlayerLeft(.5);
-                needInput = 1;
-                printMap(m);
-                break;
-            case 'd':
-                GAMESCREEN->turnPlayerRight(.5);
-                needInput = 1;
-                printMap(m);
-                break;
 
             //player input
             case '6':            
