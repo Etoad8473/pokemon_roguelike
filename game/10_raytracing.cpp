@@ -1,8 +1,5 @@
 #include "0_pokemonH.h"
 
-#define RESY 30
-#define RESX 100
-#define HEIGHTOFPLAYER 1.8
 
 int sign(float x);
 int floatsEqual(const float a, const float b, float epsilon);
@@ -523,148 +520,139 @@ class Raycast{
 
 
 
-class Screen{
-    public: 
-    //low to high rise/run
-    float pitchArr[RESY] {};
-    //in game rots
-    float rotOffsets[RESX] {};
 
-    // float heightOfPlayer;
-    float playerRot;
-    float inGameHeight;
-    float inGameWidth;
-    float distFromPlayer;
-    char skyTexture;
-    vector<Hit>* globalHitVector;
 
-    //2D pixel array
-    char pixelTexture[RESY][RESX] {};
-    int pixelColors[RESY][RESX] {};
+Screen::Screen(float playerH, float sHeight, float sWidth, float sDist, char sky)
+{
+    globalHitVector = new vector<Hit>;
+    heightOfPlayer = playerH;
+    playerRot = 0;
+    inGameWidth = sWidth;
+    inGameHeight = sHeight;
+    distFromPlayer = sDist;
+    skyTexture = sky;
 
-    Screen(float playerH, float sHeight, float sWidth, float sDist, char sky)
+    pitchArr[RESY] = {};
+    rotOffsets[RESX] = {};
+    pixelTexture[RESY][RESX] = {};
+    pixelColors[RESY][RESX] = {};
+
+
+    initializePitches();
+    initializeRotOffset();
+}
+
+void Screen::printGameScreen()
+{
+    printw("printing screen\n");
+    refresh();
+
+    for(int y = 0; y < RESY; y++)
     {
-        globalHitVector = new vector<Hit>;
-        // heightOfPlayer = playerH;
-        playerRot = 0;
-        inGameWidth = sWidth;
-        inGameHeight = sHeight;
-        distFromPlayer = sDist;
-        skyTexture = sky;
-
-        initializePitches();
-        initializeRotOffset();
-    }
-
-    void printScreen()
-    {
-        printw("printing screen\n");
-        refresh();
-
-        for(int y = 0; y < RESY; y++)
+        for(int x = 0; x < RESX; x++)
         {
-            for(int x = 0; x < RESX; x++)
-            {
-                renderPixel(pixelTexture[y][x],(Color)pixelColors[y][x]);
-            }
-            printw("\n");
+            renderPixel(pixelTexture[y][x],(Color)pixelColors[y][x]);
         }
+        printw("\n");
     }
+}
 
-    void renderAllLines(Map* m);
-    
-    void renderColumn(Raycast* r, int columnIndex);
+Screen::~Screen()
+{
+    delete(globalHitVector);
+}
 
-    ~Screen()
+
+void Screen::setPlayerRotation(float rot)
+{
+    playerRot = fmod(rot, 8);
+}
+
+void Screen::fillUpTo(int* pitchID, float nextPitch, int colIndex, BlockFace* block)
+{
+    int pID = *pitchID;
+
+    // printw("inside fill pID: %d", pID);//for testing
+    refresh();
+
+    while(pitchArr[pID] <= nextPitch && pID < RESY)
     {
-        delete(globalHitVector);
-        //delete the pitchArr references
-        //delete the rotOFfset array references
+        //get correct screen Y index
+        int screenYPos = RESY - 1 - pID;
+
+        //paint it in for color and texture
+        setPixel(screenYPos, colIndex, block->texture, block->colorID);
+
+
+        *pitchID += 1;
+        pID = *pitchID;
     }
+}
 
-    void setPlayerRotation(float rot)
+void Screen::fillSky(int* pitchID, int colIndex)
+{
+    while(*pitchID < RESY)
     {
-        playerRot = fmod(rot, 8);
-    }
-
-    void fillUpTo(int* pitchID, float nextPitch, int colIndex, BlockFace* block)
-    {
-        int pID = *pitchID;
-
-        // printw("inside fill pID: %d", pID);//for testing
-        refresh();
-
-        while(pitchArr[pID] <= nextPitch && pID < RESY)
-        {
-            //get correct screen Y index
-            int screenYPos = RESY - 1 - pID;
-
-            //paint it in for color and texture
-            setPixel(screenYPos, colIndex, block->texture, block->colorID);
-
-
-            *pitchID += 1;
-            pID = *pitchID;
-        }
-    }
-
-    void fillSky(int* pitchID, int colIndex)
-    {
-        while(*pitchID < RESY)
-        {
-            int screenYPos = RESY - 1 - *pitchID;
-            
-            setPixel(screenYPos, colIndex, skyTexture, SKY);
-
-            *pitchID += 1;
-        }
-    }
-
-    private:
-    void initializePitches()
-    {
-        float lowestY = -0.5 * inGameHeight;
-        float yDelta = inGameHeight / RESY;
-
-        float currY = lowestY;
-
-        for(int i = 0; i < RESY; i++)
-        {
-            pitchArr[i] = currY/distFromPlayer;
-            currY += yDelta;
-            // printw("pitches: %.2f %.2f %.2f %.2f ", pitchArr[i], inGameHeight, currY, distFromPlayer); //for testing
-        }
-
-        refresh();
-    }
-
-    void initializeRotOffset()
-    {
-        float leftWidth = -0.5* inGameWidth;
-        float xDelta = inGameWidth / RESX;
-
-        float currX = leftWidth;
-
-        for(int i = 0; i < RESX; i++)
-        {
-            Angle a(currX, distFromPlayer);
-            rotOffsets[i] = a.gameDir;
-
-            currX += xDelta;
-        }
-    }
-
-    void setPixel(int y, int x, char texture, Color c)
-    {
-
-        pixelTexture[y][x] = texture;
-        pixelColors[y][x] = c;
+        int screenYPos = RESY - 1 - *pitchID;
         
-        // //FOR TESTING
-        // renderPixel(texture,c);
+        setPixel(screenYPos, colIndex, skyTexture, SKY);
 
+        *pitchID += 1;
     }
-};
+}
+
+void Screen::initializePitches()
+{
+    float lowestY = -0.5 * inGameHeight;
+    float yDelta = inGameHeight / RESY;
+
+    float currY = lowestY;
+
+    for(int i = 0; i < RESY; i++)
+    {
+        pitchArr[i] = currY/distFromPlayer;
+        currY += yDelta;
+        // printw("pitches: %.2f %.2f %.2f %.2f ", pitchArr[i], inGameHeight, currY, distFromPlayer); //for testing
+    }
+
+    refresh();
+}
+
+void Screen::initializeRotOffset()
+{
+    float leftWidth = -0.5* inGameWidth;
+    float xDelta = inGameWidth / RESX;
+
+    float currX = leftWidth;
+
+    for(int i = 0; i < RESX; i++)
+    {
+        Angle a(currX, distFromPlayer);
+        rotOffsets[i] = a.gameDir;
+
+        currX += xDelta;
+    }
+}
+
+void Screen::setPixel(int y, int x, char texture, Color c)
+{
+
+    pixelTexture[y][x] = texture;
+    pixelColors[y][x] = c;
+
+}
+
+void Screen::turnPlayerLeft(float gameRot)
+{
+    setPlayerRotation(playerRot + gameRot);
+}
+
+void Screen::turnPlayerRight(float gameRot)
+{
+    setPlayerRotation(playerRot - gameRot);
+}
+
+
 
 
 
@@ -702,7 +690,7 @@ void Screen::renderColumn(Raycast *r, int columnIndex)
         {
             
             
-            nextPitch = r->getPitch(h.dist, h.closer->height, HEIGHTOFPLAYER);
+            nextPitch = r->getPitch(h.dist, h.closer->height, heightOfPlayer);
                             
 
             if (pitchArr[pitchInd] < nextPitch)
@@ -714,7 +702,7 @@ void Screen::renderColumn(Raycast *r, int columnIndex)
         else
         {
 
-            nextPitch = r->getPitch(h.dist, h.further->height, HEIGHTOFPLAYER);
+            nextPitch = r->getPitch(h.dist, h.further->height, heightOfPlayer);
             if (nextPitch > pitchArr[pitchInd])
             {
                 fillUpTo(&pitchInd, nextPitch, columnIndex, h.further);
@@ -745,7 +733,7 @@ void Screen::renderAllLines(Map* m)
         delete(r);
 
         // clear();
-        // printScreen();
+        // printGameScreen();
         // printw("\n");
         // refresh();
         // sleep(1);
@@ -769,44 +757,44 @@ int sign(float x) {
 
 
 
-int main(int argc, char* argv[])
-{
-    initscr();
-    noecho();
-    keypad(stdscr, TRUE); 
-    start_color();
-    initColors();
+// int main(int argc, char* argv[])
+// {
+//     initscr();
+//     noecho();
+//     keypad(stdscr, TRUE); 
+//     start_color();
+//     initColors();
 
-    //srand(time(NULL));                                  //init Rand
+//     //srand(time(NULL));                                  //init Rand
 
-    char c;
+//     char c;
 
-    Map* m = initializeGame(5); // defined in 1
-    echo();
+//     Map* m = initializeGame(5); // defined in 1
+//     echo();
 
-    while(c != 'q')
-    {
-        clear();
-        printMap(m);
+//     while(c != 'q')
+//     {
+//         clear();
+//         printMap(m);
 
 
-        Screen* s = new Screen(1.8, 3, 5, .75, 's');
+//         Screen* s = new Screen(1.8, 3, 5, .75, 's');
 
-        s->setPlayerRotation(1);
+//         s->setPlayerRotation(1);
 
-        s->renderAllLines(m);
-        s->printScreen();
+//         s->renderAllLines(m);
+//         s->printGameScreen();
 
-        printw("continue?\n");
-        refresh();
-        c = getch();
+//         printw("continue?\n");
+//         refresh();
+//         c = getch();
 
-        delete(s);
+//         delete(s);
 
-    }
+//     }
 
-    echo();
-    endwin();
+//     echo();
+//     endwin();
 
-    return 0;
-}
+//     return 0;
+// }
