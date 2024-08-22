@@ -1,7 +1,7 @@
 #include "0_pokemonH.h"
 
-#define RESY 20
-#define RESX 80
+#define RESY 30
+#define RESX 100
 #define HEIGHTOFPLAYER 1.8
 
 int sign(float x);
@@ -501,9 +501,9 @@ class Raycast{
 
     int posInBounds(pos p)
     {
-        if(p.y > 0 && p.y < HEIGHT-1)
+        if(p.y >0.5 && p.y < HEIGHT-1.5)
         {
-            if(p.x > 0 && p.x < WIDTH-1)
+            if(p.x > 0.5 && p.x < WIDTH-1.5)
             {
                 return 1;
             }
@@ -582,7 +582,10 @@ class Screen{
         //delete the rotOFfset array references
     }
 
-    
+    void setPlayerRotation(float rot)
+    {
+        playerRot = fmod(rot, 8);
+    }
 
     void fillUpTo(int* pitchID, float nextPitch, int colIndex, BlockFace* block)
     {
@@ -734,7 +737,8 @@ void Screen::renderAllLines(Map* m)
 
     for(int x = 0; x < RESX; x++)
     {
-        Angle* a = new Angle(rotOffsets[x]);
+        float currRot = fmod((playerRot + rotOffsets[x]), 8);
+        Angle* a = new Angle(currRot);
         Raycast* r = new Raycast(a, PLAYER, m, globalHitVector);
         renderColumn(r,x);
 
@@ -770,8 +774,8 @@ int main(int argc, char* argv[])
     initscr();
     noecho();
     keypad(stdscr, TRUE); 
-    // start_color();
-    // initColors();
+    start_color();
+    initColors();
 
     //srand(time(NULL));                                  //init Rand
 
@@ -786,21 +790,9 @@ int main(int argc, char* argv[])
         printMap(m);
 
 
-        Screen* s = new Screen(1.8, 3, 4, .75, 's');
+        Screen* s = new Screen(1.8, 3, 5, .75, 's');
 
-
-        Angle* a = new Angle(.5);
-        Raycast* r = new Raycast(a, PLAYER, m, s->globalHitVector);
-        s->renderColumn(r,0);
-
-        a = new Angle(1);
-        r = new Raycast(a, PLAYER, m, s->globalHitVector);
-        s->renderColumn(r,0);
-
-        a = new Angle(1.5);
-        r = new Raycast(a, PLAYER, m, s->globalHitVector);
-        s->renderColumn(r,0);
-        
+        s->setPlayerRotation(1);
 
         s->renderAllLines(m);
         s->printScreen();
