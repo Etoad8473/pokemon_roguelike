@@ -1,2 +1,2 @@
-makeMap: makeMap.c
-	gcc makeMap.c -o makeMap
+poke: pokemon.c pokeHelp.c heapNDij.c
+	gcc pokemon.c pokeHelp.c heapNDij.c -o poke

@@ -1,0 +1,61 @@
+ass 3 instructions
+
+----DATA STRUCTURES--------
+DS-Data structure
+
+put the distance maps inside the world DS
+PC is in the world DS
+
+terrain & NPC's inside mapTiles
+
+
+-------GAME TURN SEQUENCING---------
+priority queue: event queunt (discreet event queue)
+
+(next turn is a heap)
+NPCS:
+symbol-nextTurn-sequence number
+@-0-0
+h-0-1
+m-0-2
+p-0-...
+s-0-
+r-0-
+if next turns are diff, take smaller next turn
+if same, take smaller sequence num
+
+when calculating the next action's cost,,
+add it to their nextTurn (next turn is what gameTurn the action will occur on)
+
+when the game plays, it just jumps to the next action's gameturn in the heap
+the display actually only prints at PC's turn
+
+
+
+--------PARALLEL MAPS----------
+rival distance map
+hiker distance map
+
+character overlayMap
+character_t* [21][80]
+
+
+when moving a character, has to check if there is a person there
+---when
+-when colliding, 4 handling options:
+--you can't go there, dont move
+--you cant go there, go to a diff place
+--you can go there, swap
+--you can go there, one person goes to a diff place
+
+
+
+
+-------Characters-------
+p - straight path
+m - swimmer
+s - sentry
+h - hiker (chases pc)
+r - rival (chases pc)
+
+--if a road is adjacent to water,, swimmers can "swim" under it

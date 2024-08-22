@@ -1,9 +1,10 @@
-this was a lot of work
+TO RUN:
+make
+./poke
 
-works for all 6 input types nswefq
-also works for incorrect input types
-pokemarts & centers spawn together, but their probability is per the specification
-borders of the world have roads blocked off
+This will print the map, the hiker's distances, and the rival's distance maps.
+Each time you run it it will generate a new map with corresponding distance maps.
 
-BUG:
-if you put in multiple inputs in the same line it will run on all of them and possibly crash
+Notes:
+for unreachable distances I opted to print "--" instead 
+of a double space as I found that it reads more clearly.
