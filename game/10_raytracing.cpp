@@ -532,12 +532,6 @@ Screen::Screen(float playerH, float sHeight, float sWidth, float sDist, char sky
     distFromPlayer = sDist;
     skyTexture = sky;
 
-    pitchArr[RESY] = {};
-    rotOffsets[RESX] = {};
-    pixelTexture[RESY][RESX] = {};
-    pixelColors[RESY][RESX] = {};
-
-
     initializePitches();
     initializeRotOffset();
 }
@@ -637,7 +631,8 @@ void Screen::initializeRotOffset()
 void Screen::setPixel(int y, int x, char texture, Color c)
 {
 
-    pixelTexture[y][x] = texture;
+    // pixelTexture[y][x] = texture;
+    pixelTexture[y][x] = '#';
     pixelColors[y][x] = c;
 
 }

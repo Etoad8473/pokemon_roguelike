@@ -29,7 +29,7 @@ using namespace std;
 #define NPC_SPAWN_ATTEMPTS 10
 #define ESCAPE_KEY 27
 #define RESY 30
-#define RESX 90
+#define RESX 100
 // #define HEIGHTOFPLAYER 1.8
 
 enum STAT{
@@ -345,9 +345,9 @@ class Raycast;
 class Screen{
     public: 
     //low to high rise/run
-    float pitchArr[RESY];
+    float pitchArr[RESY] {};
     //in game rots
-    float rotOffsets[RESX];
+    float rotOffsets[RESX] {};
 
     // float heightOfPlayer;
     float playerRot;
@@ -359,8 +359,8 @@ class Screen{
     vector<Hit>* globalHitVector;
 
     //2D pixel array
-    char pixelTexture[RESY][RESX];
-    int pixelColors[RESY][RESX];
+    char pixelTexture[RESY][RESX] {};
+    int pixelColors[RESY][RESX] {};
 
     Screen(float playerH, float sHeight, float sWidth, float sDist, char sky);
     
