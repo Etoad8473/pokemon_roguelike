@@ -1,27 +1,8 @@
-#include "pokemonH.h"
-
-void gameRunner(int numNPC);
-void pokemart(tMapTile *m, characterT *pc);
-void trainersList(tMapTile* m, characterT* pc);
-void npcPrintStatement(tMapTile* m, characterT* pc, characterT* npc);
+#include "0_pokemonH.h"
 
 
+Map* fly_cutscene(Map* m);
 
-int main(int argc, char* argv[])
-{
-
-    // while( (ch = getch()) != 'q'){
-    //     printw("you pressed %c\n", ch);
-    //     refresh();
-    // }
-    
-    gameRunner(15);
-
-
-    
-    return 0;
-
-}
 
 void gameRunner(int numNPC)
 {
@@ -37,19 +18,16 @@ void gameRunner(int numNPC)
     refresh();
 
     //--SETUP--//
-    heap_t* turnHeap = createHeap(8);                //create heap
-    srand(time(NULL));                                  //init Rand
-    initPathMap(hikerPMap);                             //init hiker&rival path Maps
-    initPathMap(rivalPMap);                             //^    
-    tMapTile *m = createMapTile(200,200,-1,-1,-1,-1);   //init map
-    characterT* pc = spawnPlayer(m,turnHeap);                    //spawn PC
-    dijkstra(m, hikerW, hikerPMap);                     //run dijkstra for hiker&rival
-    dijkstra(m, rivalW, rivalPMap);                     //^
+    // Heap* turnHeap = createHeap(8);                   //create heap
+    // Map *m = createMapTile(200,200,-1,-1,-1,-1);   //init map
+    Map* m = initializeGame(numNPC);           //spawn PC
+    // dijkstra(m, hikerW, hikerPMap);                     //run dijkstra for hiker&rival
+    // dijkstra(m, rivalW, rivalPMap);                     //^
 
     //spawn in NPC's +give order
         //add to queue with terrainWeight & order
     
-    spawnAllNPCs(numNPC,m,turnHeap);
+    // spawnAllNPCs(numNPC,m);
 
     //ship the loading bar:
     //sleep(2); 
@@ -57,16 +35,6 @@ void gameRunner(int numNPC)
 
 
     printMap(m);
-
-    //DEBUGGING: spawning more npc's
-    // char cha;
-    // while((cha = getch()) != 'n')
-    // {
-    //     characterT* npc = spawnNPC(getRandNPCType(), m,turnHeap,HEIGHT/2,WIDTH/2);
-    //     printMap(m);
-    //     printw("%d", getTerrainWeight(npc->weights,m,npc->y,npc->x));
-    //     refresh();
-    // }
 
     /*
     while heap!empty
@@ -79,41 +47,29 @@ void gameRunner(int numNPC)
         print map
         wait a second
     */
-    while(!heapIsEmpty(turnHeap) && !quitGame)
+    while(!m->turnHeap->heapIsEmpty() && !quitGame)
     {
-        dNode_t* node = extractMin(turnHeap);
-        characterT* c = m->cMap[node->y][node->x];
+        Node* node = m->turnHeap->extractMin();
+        Character* c = m->cMap[node->y][node->x];
 
-        c->moveFunct(m,c);
-        c->nextTurn = c->nextTurn + getTerrainWeight(c->weights,m,c->y,c->x);
+        Map* prevM = m;
+        m = c->moveFunct(m,c);
+        if(m == prevM)
+        {
+            c->nextTurn = c->nextTurn + getTerrainWeight(c->weights,m,c->y,c->x);
 
-        node->currWeight = c->nextTurn;
-        node->y = c->y;
-        node->x = c->x;
+            node->currWeight = c->nextTurn;
+            node->y = c->y;
+            node->x = c->x;
 
-        heapInsert(node, turnHeap);
+            m->turnHeap->heapInsert(node);
+        }
+        else
+        {
+            //print correctly moved maps
+            printw("correctly moved maps");
+        }
     }
-
-
-    // while( (ch = getch()) != 'q'){
-    //     switch(ch){
-    //         case('w'):
-    //             pc->currDir = 2;
-    //             break;
-    //         case('a'):
-    //             pc->currDir = 4;
-    //             break;
-    //         case('s'):
-    //             pc->currDir = 6;
-    //             break;
-    //         case('d'):
-    //             pc->currDir = 0;
-    //             break;
-    //     }
-
-    //     playerMove(m, pc);  
-
-    // }
 
     echo();//dont forget to turn it back on
     endwin();
@@ -121,7 +77,7 @@ void gameRunner(int numNPC)
 }
 
 //returns a direction
-void keyboardInput(tMapTile *m, characterT *pc)
+Map* keyboardInput(Map *m, Character *pc)
 {
     char ch;
     int needInput = 1;
@@ -189,15 +145,27 @@ void keyboardInput(tMapTile *m, characterT *pc)
 
             //Pokemart
             case '>':
-                pokemart(m,pc);
-                needInput = 1; //this keeps the game in the same state when returning from pokemart
+                pokemart_cutScene(m,pc);
+                needInput = 1; //this keeps the game in the same state when returning from pokemart_cutScene
                 break;
             
             case 't':
-                trainersList(m,pc);
+                trainersList_cutscene(m,pc);
                 needInput = 1; //this keeps the game in the same state when returning from trainers list
                 break;
 
+            case 'f':
+                Map* nM;
+                nM = fly_cutscene(m);
+                if(!(nM))
+                {
+                    needInput = 1;
+                }
+                else
+                {
+                    m = nM;
+                }
+                break;
 
             default:
                 needInput = 1;
@@ -206,12 +174,14 @@ void keyboardInput(tMapTile *m, characterT *pc)
         }
     }
 
+    return m;
+
 }
 
-void pokemart(tMapTile *m, characterT *pc){
+void pokemart_cutScene(Map *m, Character *pc){
     /*
-    check if standing on pokemart
-    if yes: clear window and refresh with pokemart template, wait for '<' input to reset to map
+    check if standing on pokemart_cutScene
+    if yes: clear window and refresh with pokemart_cutScene template, wait for '<' input to reset to map
     */
     if(m->map[pc->y][pc->x] == 'M')
     {
@@ -239,7 +209,7 @@ void pokemart(tMapTile *m, characterT *pc){
 
 }
 
-void trainersList(tMapTile* m, characterT* pc)
+void trainersList_cutscene(Map* m, Character* pc)
 {
     clear();
     printw("Trainer list (press 'esc' to exit):\n");
@@ -290,7 +260,7 @@ void trainersList(tMapTile* m, characterT* pc)
 
 }
 
-void npcPrintStatement(tMapTile* m, characterT* pc, characterT* npc)
+void npcPrintStatement(Map* m, Character* pc, Character* npc)
 {
     if(!npc){
         printw("No NPC found\n");
@@ -324,7 +294,7 @@ void npcPrintStatement(tMapTile* m, characterT* pc, characterT* npc)
 }
 
 //TODO: temporary pokemon battle
-void pokemonBattle(tMapTile* m, characterT* npc)
+void pokemonBattle_cutscene(Map* m, Character* npc)
 {
     printMap(m);
     clear();
@@ -343,3 +313,76 @@ void pokemonBattle(tMapTile* m, characterT* npc)
 // void setMessage(char* string){
 //     errorMsg = string;
 // }
+
+
+//6_
+
+/*
+return 1 if pressed escape (for need more input)
+
+clear (incase multiple fly attempts), print map + print instructions
+turn on echo
+getInput w ncurses
+turn off echo
+print outputs
+confirm outputs
+
+flyToTile
+*/
+Map* fly_cutscene(Map* m)
+{
+    clear();
+    printMap(m);
+    printw("You pressed f to fly. Enter coordinates [X,Y] (enter after each inp):\n");
+    refresh();
+
+    echo();
+
+    char inputX[4];
+    getnstr(inputX, 4);
+    int numX = atoi(inputX);
+
+    char inputY[5];
+    getnstr(inputY, 4);
+    int numY = atoi(inputY);
+
+    noecho();
+
+    printMap(m);
+    printw("Fly to [X:%d, Y:%d]? ('enter' to confirm/'esc' to cancel)\n", numX, numY);
+    refresh();
+
+    char confirm = getch();
+    while(!('\n' == confirm || 27 == confirm))
+    {
+        confirm = getch();
+    }
+
+    if(confirm == '\n')
+    {
+
+        
+
+        numX += 200; numY = 200 - numY;//format inputs
+
+        if(numX < 0 || numX >= WORLDSIZE || numY < 0 || numY >= WORLDSIZE)
+        {
+            printw("EzWarning: out of bounds input parameters passed to flyToTile function\n");
+            printMap(m);//TODO: change to printMapNoClear();
+            return NULL;
+        }
+        
+        return flyToTile(m,numY, numX, 'w');
+    }
+    else //input was 'esc'
+    {
+    
+    clear();
+    printMap(m);
+
+    return NULL;//do nothing and return to input fetching
+
+    }
+
+
+}

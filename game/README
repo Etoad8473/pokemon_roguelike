@@ -1,5 +1,5 @@
 FUNCTIONALITY:
-This program runs the game with 15 trainers (for scrolling capabilities), you move the PC with controls as per the spec
+This week you can move between maps and fly to new maps. 
 
 
 TO RUN:
@@ -8,8 +8,8 @@ make
 
 
 NOTES:
--when exiting the pokemon battle or the trainer list, it takes just a second to load (idk why),, if you also press q the input will process before the screen can print and the game will end.
--it sometimes looks like the trainers battle you from 1 block away. They are actually moving into contact with you but the cutscene to the pokemon battle happens a split second after the screen shows them making contact. I tried adding a delay but that created input bugs where the game would keep playing in the background. Anyways this only looks like a bug but is fine per the spec.
+-when pressing escape from any cutscene (fly, trainer list, pokebattle) it takes just a second to load
+-the inputs of the fly command go past the height of the default terminal size
 
 
 BUGS:

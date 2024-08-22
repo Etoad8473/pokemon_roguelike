@@ -1,9 +1,8 @@
+#include "0_pokemonH.h"
 
-#include "pokemonH.h"
 
-
-dNode_t* hikerPMap[HEIGHT][WIDTH] = {NULL};
-dNode_t* rivalPMap[HEIGHT][WIDTH] = {NULL};
+Node* hikerPMap[HEIGHT][WIDTH] = {NULL};
+Node* rivalPMap[HEIGHT][WIDTH] = {NULL};
 // //adjacent offsets
 // int adjVer[8]={0,-1,-1,-1,0,1,1,1};
 // int adjHor[8]={1,1,0,-1,-1,-1,0,1};
@@ -23,7 +22,7 @@ dNode_t* rivalPMap[HEIGHT][WIDTH] = {NULL};
 // {
 //     srand(time(NULL));
 
-//     tMapTile *m = createMapTile(200,200,-1,-1,-1,-1);
+//     Map *m = createMapTile(200,200,-1,-1,-1,-1);
 //     int playerY = 12;
 //     int playerX = 40;
 //     spawnCharacterHelper('a',m,playerY,playerX,0);
@@ -48,7 +47,7 @@ dNode_t* rivalPMap[HEIGHT][WIDTH] = {NULL};
 
 
 
-void initPathMap(dNode_t* pMap[HEIGHT][WIDTH])//NECESSARY FOR DIJKSTRA TO WORK
+void initPathMap(Node* pMap[HEIGHT][WIDTH])//NECESSARY FOR DIJKSTRA TO WORK
 {
     int y;
     int x;
@@ -61,7 +60,7 @@ void initPathMap(dNode_t* pMap[HEIGHT][WIDTH])//NECESSARY FOR DIJKSTRA TO WORK
     }
 }
 
-void resetPathMap(dNode_t* pMap[HEIGHT][WIDTH])
+void resetPathMap(Node* pMap[HEIGHT][WIDTH])
 {
 
     int y;
@@ -77,28 +76,9 @@ void resetPathMap(dNode_t* pMap[HEIGHT][WIDTH])
     }
 }
 
-void printPathMap(dNode_t* pMap[HEIGHT][WIDTH])
-{
-    int y;
-    int x;
-    for(y = 0; y < HEIGHT; y++)
-    {
-        for(x=0;x < WIDTH;x++)
-        {
-            if(pMap[y][x]->currWeight < SHRT_MAX)
-                printw("%02d ", (pMap[y][x]->currWeight % 100));
-            else   
-                printw("-- ");
-        }
-        printw("\n");
-    }
-    printw("\n\n");
-}
-
-
 
 //Input: terrain map, weights array, parallel pathMap, player Pos
-int dijkstra(tMapTile* m, int weight[], dNode_t* pMap[HEIGHT][WIDTH])
+int dijkstra(Map* m, int weight[], Node* pMap[HEIGHT][WIDTH])
 {
     //check if player exists
     if(!playerExists())//if player doesnt exist, throw error
@@ -108,18 +88,18 @@ int dijkstra(tMapTile* m, int weight[], dNode_t* pMap[HEIGHT][WIDTH])
     }
 
     //get player coordinates
-    int pY = player->y; int pX = player->x;
+    int pY = PLAYER->y; int pX = PLAYER->x;
     
     //for all on pathMap,, set Node weight to short.max_value
     resetPathMap(pMap);
 
     //create minHeap
-    heap_t *h = createHeap(8);
+    Heap h(8);
 
     //set pathMap[playerLoc] to weight 0
     //add all to heap
     pMap[pY][pX]->currWeight=0;
-    heapInsert(pMap[pY][pX],h);
+    h.heapInsert(pMap[pY][pX]);
 
 
     //while(!heapEmpty)
@@ -131,9 +111,9 @@ int dijkstra(tMapTile* m, int weight[], dNode_t* pMap[HEIGHT][WIDTH])
                     //update with new Weight
                     //heapifyUp
                     //setParent
-    while(!heapIsEmpty(h))
+    while(!h.heapIsEmpty())
     {
-        dNode_t* parent = extractMin(h);
+        Node* parent = h.extractMin();
         //parent->status = 1;
 
         int i;
@@ -143,38 +123,36 @@ int dijkstra(tMapTile* m, int weight[], dNode_t* pMap[HEIGHT][WIDTH])
             int nextX = parent->x + adjHor[i];
             if(nextY < HEIGHT && nextY >= 0 && nextX < WIDTH && nextX >= 0)//check in bounds
             {
-                dNode_t* adj = pMap[nextY][nextX];
+                Node* adj = pMap[nextY][nextX];
 
                 if(adj->status < 1)//not processed
                 {
-                    heapInsert(adj,h);
+                    h.heapInsert(adj);
                     int terrWeight = getTerrainWeight(weight, m, nextY, nextX);
                     int newWeight = terrWeight + parent->currWeight;
                     if(newWeight < adj->currWeight)
                     {
                         adj->currWeight = newWeight;
                         adj->parent = parent;
-                        heapifyUp(adj->heapPos, h);
+                        h.heapifyUp(adj->heapPos);
                     }
                 }
             }
         }
     }
-    
-    freeHeap(h);
 
     return 0;
 
 }
 
 
-dNode_t* createDNode(int y, int x, int weight, int status)
+Node* createDNode(int y, int x, int weight, int status)
 {
     //TODO: CLAMP X/Y INPUTS
 
     //TODO: link to rivalMap/hikerMap
 
-    dNode_t* d = (dNode_t*)malloc(sizeof(dNode_t));
+    Node* d = (Node*)malloc(sizeof(Node));
     d->heapPos = -1;
     d->currWeight = weight;
     d->y = y;
@@ -185,7 +163,7 @@ dNode_t* createDNode(int y, int x, int weight, int status)
     return d;
 }
 
-int compareNodeWeight(dNode_t* a, dNode_t* b)
+int Heap::compareNodeWeight(Node* a, Node* b) const
 {
     int diff = a->currWeight - b->currWeight;
 
@@ -201,115 +179,77 @@ int compareNodeWeight(dNode_t* a, dNode_t* b)
 }
 
 
-int parent(int pos){return (pos-1) / 2;}
+int Heap::parent(int pos){return (pos-1) / 2;}
 
-int leftChild(int pos){return (2 * pos + 1);}
+int Heap::leftChild(int pos){return (2 * pos + 1);}
 
-int rightChild(int pos){return (2 * pos) + 2;}
+int Heap::rightChild(int pos){return (2 * pos) + 2;}
 
-
-void swap(int aPos, int bPos, heap_t* h)
+//MIGHT BE BROKEN
+void Heap::swap(int aPos, int bPos)
 {
     //swap node's heapPos index
-    int tempPos = h->heapArr[aPos]->heapPos;
-    h->heapArr[aPos]->heapPos = h->heapArr[bPos]->heapPos;
-    h->heapArr[bPos]->heapPos = tempPos;
+    int tempPos = heapArr[aPos]->heapPos;
+    heapArr[aPos]->heapPos = heapArr[bPos]->heapPos;
+    heapArr[bPos]->heapPos = tempPos;
 
     //swap positions in heap
-    dNode_t* temp = h->heapArr[aPos];
-    h->heapArr[aPos] = h->heapArr[bPos];
-    h->heapArr[bPos] = temp;
+    Node* temp = heapArr[aPos];
+    heapArr[aPos] = heapArr[bPos];
+    heapArr[bPos] = temp;
 
 }
 
-void printHeap(heap_t* h)
+
+// void temporaryInsert(Node *d, Heap* h)
+// {
+//     //check if reaching maxSize,, increase heap size
+
+//     h->heapArr[h->currSize] = d;
+//     d->heapPos = h->currSize;
+//     h->currSize++;
+// }
+
+//OLD
+// Heap* createHeap(int size)
+// {
+//     Heap *h = (Heap*)malloc(sizeof(Heap));
+//     // if (h == NULL) {
+//     //     fprintw(stderr, "Memory allocation failed.\n");
+//     //     exit(1);
+//     // }
+
+//     h->currSize = 0;
+//     h->maxSize = size;//CHANGE
+//     h->heapArr = (Node**)calloc(size,sizeof(Node*));
+//     // if (h->heapArr == NULL) {
+//     //     fprintw(stderr, "Memory allocation failed.\n");
+//     //     exit(1);
+//     // }
+
+
+//     return h;
+// }
+Heap::Heap(int size)
 {
-    printw("---HEAP---\nmaxSize: %d\n", h->maxSize);
-    printw("currSize: %d\n", h->currSize);
 
-    int i;
-    for(i = 0; i< h->maxSize; i++)
-    {
+    currSize = 0;
+    maxSize = size;//CHANGE
+    heapArr = (Node**)calloc(size,sizeof(Node*));
 
-        if(h->heapArr[i])
-        {
-            printw("%d: ", i);
-            printDijNode(h->heapArr[i]);
-        }
-        else
-        {
-            printw("%d: Null\n", i);
-        }
-    }
-    printw("\n");
 }
 
-void printHeapShort(heap_t* h, int num)
+Heap::~Heap()
 {
-    printw("---HEAP---\nmaxSize: %d\n", h->maxSize);
-    printw("currSize: %d\n", h->currSize);
-
-    int i;
-    for(i = 0; i< num; i++)
-    {
-
-        if(h->heapArr[i])
-        {
-            printw("%d: ", i);
-            printDijNode(h->heapArr[i]);
-        }
-        else
-        {
-            printw("%d: Null\n", i);
-        }
-    }
-
-    printw("\n");
+    free(heapArr);
 }
 
-void printDijNode(dNode_t *d)
-{
-    printw("Ind: %d - (Y:%d X:%d), Weight: %d\n", d->heapPos, d->y, d->x, d->currWeight);
-}
-
-
-
-void temporaryInsert(dNode_t *d, heap_t* h)
-{
-    //check if reaching maxSize,, increase heap size
-
-    h->heapArr[h->currSize] = d;
-    d->heapPos = h->currSize;
-    h->currSize++;
-}
-
-//TODO
-heap_t* createHeap(int size)
-{
-    heap_t *h = (heap_t*)malloc(sizeof(heap_t));
-    // if (h == NULL) {
-    //     fprintw(stderr, "Memory allocation failed.\n");
-    //     exit(1);
-    // }
-
-    h->currSize = 0;
-    h->maxSize = size;//CHANGE
-    h->heapArr = (dNode_t**)calloc(size,sizeof(dNode_t*));
-    // if (h->heapArr == NULL) {
-    //     fprintw(stderr, "Memory allocation failed.\n");
-    //     exit(1);
-    // }
-
-
-    return h;
-}
-
-int heapIsEmpty(heap_t* h){
-    return h->currSize <= 0;
+int Heap::heapIsEmpty(){
+    return currSize <= 0;
 
 }
 
-int getTerrainWeight(int weight[], tMapTile* m, int y, int x)
+int getTerrainWeight(int weight[], Map* m, int y, int x)
 {
 
     char terr = m->map[y][x];
@@ -328,109 +268,102 @@ int getTerrainWeight(int weight[], tMapTile* m, int y, int x)
 
 }
 
-dNode_t* peekMin(heap_t* h)
+Node* Heap::peekMin()
 {
-    return h->heapArr[0];
+    return heapArr[0];
 }
 
-dNode_t* extractMin(heap_t* h)
+Node* Heap::extractMin()
 {
-    if(!h || heapIsEmpty(h))//if heap is null or empty
+    if(heapIsEmpty())//if heap is null or empty
     {
         printw("trying to pop an empty or null heap");
         return NULL;
     }
 
-    dNode_t* root = peekMin(h);
+    Node* root = peekMin();
 
-    int tailInd = h->currSize-1;
-    swap(0, tailInd, h);
-    h->heapArr[tailInd]=NULL;
-    h->currSize--;
+    int tailInd = currSize-1;
+    swap(0, tailInd);
+    heapArr[tailInd]=NULL;
+    currSize--;
 
-    heapifyDown(h,0);//reset heap property
+    heapifyDown(0);//reset heap property
 
     root->heapPos = 0;
     root->status=2;
     return root;
 }
 
-void heapInsert(dNode_t* d, heap_t* h)
+void Heap::heapInsert(Node* d)
 {
     //check if reaching maxSize,, increase heap size
-    if(h->currSize >= h->maxSize)
+    if(currSize >= maxSize)
     {
-        doubleHeapSize(h);
+        doubleHeapSize();
     }
 
-    h->heapArr[h->currSize] = d;//add node at the next open position
-    d->heapPos = h->currSize;
+    heapArr[currSize] = d;//add node at the next open position
+    d->heapPos = currSize;
     d->status = 1;
-    h->currSize++;
+    currSize++;
 
-    int curr = h->currSize - 1;//get the added node's current pos
-    heapifyUp(curr, h);
+    int curr = currSize - 1;//get the added node's current pos
+    heapifyUp(curr);
 
 }
 
-void heapifyUp(int index, heap_t* h)
+void Heap::heapifyUp(int index)
 {
     //while not root & smaller than parent
-    while(index > 0 && compareNodeWeight( h->heapArr[index],h->heapArr[parent(index)]) < 0)
+    while(index > 0 && compareNodeWeight(heapArr[index],heapArr[parent(index)]) < 0)
     {
         int parentInd = parent(index);
-        swap(parentInd, index, h);
+        swap(parentInd, index);
 
         index = parentInd;
     }
 }
 
-void heapifyDown(heap_t* h, int index)
+void Heap::heapifyDown(int index)
 {
-    if(h->currSize <= 1)//if root or empty do nothing
+    if(currSize <= 1)//if root or empty do nothing
         return;
     
     int left = leftChild(index);
     int right = rightChild(index); 
     int smallest = index;
-    if(left < h->currSize && compareNodeWeight( h->heapArr[left] , h->heapArr[index])<0)
+    if(left < currSize && compareNodeWeight( heapArr[left] , heapArr[index])<0)
         smallest = left;
-    if(right < h->currSize && compareNodeWeight(h->heapArr[right] , h->heapArr[smallest])<0)
+    if(right < currSize && compareNodeWeight(heapArr[right] , heapArr[smallest])<0)
         smallest = right;
 
     if(smallest != index)
     {
-        swap(index, smallest, h);
-        heapifyDown(h, smallest);
+        swap(index, smallest);
+        heapifyDown(smallest);
     }
 }   
 
-void doubleHeapSize(heap_t* h)
+void Heap::doubleHeapSize()
 {
 
-    int newMaxSize = 2*h->maxSize;
+    int newMaxSize = 2*maxSize;
 
     //copy array
-    dNode_t** newHeapArr = (dNode_t**)realloc(h->heapArr, newMaxSize * sizeof(dNode_t*));
+    Node** newHeapArr = (Node**)realloc(heapArr, newMaxSize * sizeof(Node*));
 
     //null the remaining array
     int i;
-    for(i = h->maxSize; i < newMaxSize; i++)
+    for(i = maxSize; i < newMaxSize; i++)
     {
         newHeapArr[i] = NULL;
     }
 
-    h->maxSize = newMaxSize;
-    h->heapArr = newHeapArr;
+    maxSize = newMaxSize;
+    heapArr = newHeapArr;
 }
 
-void freeHeap(heap_t* h)
-{
-    if(!h)//if null
-        return;
-    free(h->heapArr);
-    free(h);
-}
 
 
 
@@ -439,7 +372,7 @@ void freeHeap(heap_t* h)
 //--------testing heap---------//
 // int main(int argc, char* argv[])
 // {
-//     // heap_t* h = createHeap(4);
+//     // Heap* h = createHeap(4);
 //     // printw("-----------INITIALIZATION-----------\n");
 
 //     // printHeap(h);

@@ -111,3 +111,16 @@
     finish pokemart cutscene
     trainer list cutscene
     error message display
+
+3/27/24 8am:
+    turn all files to cpp
+    recursively change heap to class with functions
+    test
+    test functionality with cpp changes + bug fix
+    cleanup code, separate files
+
+3/27/24 4pm:
+    add map functionality from 1.02
+    move between gates
+    fly function
+    fly reading input
