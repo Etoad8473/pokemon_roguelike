@@ -26,7 +26,6 @@ Map* createMapTile(int y, int x, int n, int s, int e, int w, int numNPCs)
 
 Map* initializeGame(int numNPCs)
 {
-    srand(time(NULL));                                  //init Rand
 
     initPathMap(hikerPMap);    //init hiker&rival path Maps
     initPathMap(rivalPMap);    //^    
@@ -37,6 +36,7 @@ Map* initializeGame(int numNPCs)
     Player* pc = (Player*)spawnCharacterHelper('a', m, m->w, 1, 0);//add to turnheap, internal & map pos updated
     pc->pokeballs = 3;
     PLAYER = pc;        //set global reference
+    GAMESCREEN = new Screen(1.8, 5, 5, 1.5, 's');
     
     dijkstra(m,hikerW,hikerPMap);
     dijkstra(m,rivalW,rivalPMap);

@@ -28,6 +28,9 @@ using namespace std;
 #define DEFAULT_NUM_TRAINERS 5
 #define NPC_SPAWN_ATTEMPTS 10
 #define ESCAPE_KEY 27
+#define RESY 30
+#define RESX 90
+// #define HEIGHTOFPLAYER 1.8
 
 enum STAT{
     hpSTAT,
@@ -38,6 +41,22 @@ enum STAT{
     spDefSTAT
 };
 
+enum Color{
+    BOUNDARY,
+    TREE,
+    ROAD,
+    MART,
+    CENTER,
+    TALLGRASS,
+    GRASS,
+    MOUNTAIN,
+    FOREST,
+    WATER,
+    GATE,
+    SKY,
+    ENEMY,
+    TEXT_COLOR
+};
 
 class Map;
 class Pokemon;
@@ -319,6 +338,60 @@ class Pokemon{
 
 };
 
+class BlockFace;
+class Hit;
+class Raycast;
+
+class Screen{
+    public: 
+    //low to high rise/run
+    float pitchArr[RESY];
+    //in game rots
+    float rotOffsets[RESX];
+
+    // float heightOfPlayer;
+    float playerRot;
+    float inGameHeight;
+    float inGameWidth;
+    float heightOfPlayer;
+    float distFromPlayer;
+    char skyTexture;
+    vector<Hit>* globalHitVector;
+
+    //2D pixel array
+    char pixelTexture[RESY][RESX];
+    int pixelColors[RESY][RESX];
+
+    Screen(float playerH, float sHeight, float sWidth, float sDist, char sky);
+    
+
+    void printGameScreen();
+
+    void renderAllLines(Map* m);
+    
+    void renderColumn(Raycast* r, int columnIndex);
+
+    ~Screen();
+
+    void setPlayerRotation(float rot);
+
+    void fillUpTo(int* pitchID, float nextPitch, int colIndex, BlockFace* block);
+
+    void fillSky(int* pitchID, int colIndex);
+
+    void turnPlayerLeft(float gameRot);
+
+    void turnPlayerRight(float gameRot);
+
+    private:
+    void initializePitches();
+
+    void initializeRotOffset();
+
+    void setPixel(int y, int x, char texture, Color c);
+};
+
+
 
 extern Map* worldMap[401][401];
 extern int adjVer[9];
@@ -329,6 +402,7 @@ extern int hikerW[NUMTERRAINTYPES];
 extern int rivalW[NUMTERRAINTYPES];
 extern int otherW[NUMTERRAINTYPES];
 extern char terrTypes[NUMTERRAINTYPES];
+extern int terrHeights[NUMTERRAINTYPES];
 
 extern Node* hikerPMap[HEIGHT][WIDTH];
 extern Node* rivalPMap[HEIGHT][WIDTH];
@@ -338,7 +412,7 @@ extern int quitGame;
 extern stringstream DEBUGprint;
 extern stringstream MESSAGEprint;
 extern Pokedex* POKEDEX;
-
+extern Screen* GAMESCREEN;
 
 
 //void runner(int numNPCs); //deprecated
@@ -445,6 +519,7 @@ void wildPokemon_cutscene(Map* m);
 void startPokemon_cutscene();
 void printMessage(const char* s);
 
-
+//10: raycasting
+void initColors();
 
 #endif

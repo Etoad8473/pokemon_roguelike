@@ -198,7 +198,7 @@ void Pokemon::initializeMoves(int lvl)
         }
     }
 
-    //converts hashMap to 
+    //converts hashMap to vector
     for(const auto& pair: possibleMoves)
     {
         posMovList.push_back(pair.first);
@@ -266,8 +266,6 @@ string Pokemon::toString()
     return output.str();
 
 }
-
-
 
 
 void startPokemon_cutscene()

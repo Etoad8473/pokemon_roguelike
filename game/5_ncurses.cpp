@@ -6,35 +6,16 @@ Map* fly_cutscene(Map* m);
 
 void gameRunner(int numNPC)
 {
-    char ch;
-    initscr();
-    noecho();
-    keypad(stdscr, TRUE); 
 
     if(numNPC == -1)
         numNPC = DEFAULT_NUM_TRAINERS;
     
-    printw("Number of trainers: %d\n\n\n\n\n\n---------------LOADING GAME-------------\n", numNPC);
-    refresh();
-
-    //--SETUP--//
-    // Heap* turnHeap = createHeap(8);                   //create heap
-    // Map *m = createMapTile(200,200,-1,-1,-1,-1);   //init map
-    Map* m = initializeGame(numNPC);           //spawn PC
-    // dijkstra(m, hikerW, hikerPMap);                     //run dijkstra for hiker&rival
-    // dijkstra(m, rivalW, rivalPMap);                     //^
-
-    //spawn in NPC's +give order
-        //add to queue with terrainWeight & order
-    
-    // spawnAllNPCs(numNPC,m);
-
-    //ship the loading bar:
-    //sleep(2); 
-    
-    startPokemon_cutscene(); // defined in 8
-
+    Map* m = initializeGame(numNPC); // defined in 1
+    //startPokemon_cutscene(); // defined in 8
     printMap(m);
+
+    
+
 
     /*
     while heap!empty
@@ -71,8 +52,6 @@ void gameRunner(int numNPC)
         }
     }
 
-    echo();//dont forget to turn it back on
-    endwin();
 
 }
 
@@ -93,6 +72,16 @@ Map* keyboardInput(Map *m, Character *pc)
                 quitGame = 1;
                 break;
             
+            case 'a':
+                GAMESCREEN->turnPlayerLeft(.5);
+                needInput = 1;
+                printMap(m);
+                break;
+            case 'd':
+                GAMESCREEN->turnPlayerRight(.5);
+                needInput = 1;
+                printMap(m);
+                break;
 
             //player input
             case '6':            
