@@ -1,2 +1,2 @@
-poke: pokemon.c pokeHelp.c heapNDij.c
-	gcc pokemon.c pokeHelp.c heapNDij.c -o poke
+poke: 2_worldMapRunner.c 1_mapWorldGeneration.c 3_heapDijkstra.c
+	gcc 2_worldMapRunner.c 1_mapWorldGeneration.c 3_heapDijkstra.c -o poke

@@ -78,3 +78,17 @@
     debugging dijkstras
     dijkstras working
     format printing
+
+2/26/24 1pm:
+    create character data type
+    spawn character
+    create generic moveFunction
+
+2/28/24 6am:
+    refactor heap to work as turnCounter
+    create character's move functions
+
+    4pm:
+    create switch
+    spawn all characters
+    submit
