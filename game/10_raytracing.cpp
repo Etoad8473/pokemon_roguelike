@@ -1,16 +1,20 @@
 #include "0_pokemonH.h"
 
-#define RESY 42
-#define RESX 160
+#define RESY 20
+#define RESX 80
 #define HEIGHTOFPLAYER 1.8
 
 int sign(float x);
 int floatsEqual(const float a, const float b, float epsilon);
 
+
+
 struct pos{
     float y;
     float x;
 };
+
+
 
 class BlockFace{
     public:
@@ -43,6 +47,14 @@ class BlockFace{
 
     }
 
+    BlockFace(const BlockFace& b)
+    {
+        height = b.height;
+        colorID = b.colorID;
+        texture = b.texture;
+        terrainID = b.terrainID;
+    }
+
     private:
     int getTerrainIndex(char terrain)
     {
@@ -59,6 +71,8 @@ class BlockFace{
         return i;
     }
 };
+
+
 
 class Angle
 {
@@ -135,7 +149,9 @@ class Angle
 
     float radToGameRot(float rad)
     {
-        return 8 - (8 * rad / (2*M_PI));
+        float gameRot = 8 - (8 * rad / (2*M_PI));
+        gameRot = fmod(gameRot, 8);
+        return gameRot;
     }
 
     float gameToRadRot(float gameDir)
@@ -144,7 +160,6 @@ class Angle
     }
 
 };
-
 
 
 //does not refresh, just sends to buffer
@@ -157,176 +172,34 @@ void renderPixel(char texture, Color colorID)
 
 
 
-
-class Screen{
-    public: 
-    //low to high rise/run
-    float pitchArr[RESY] {};
-    //in game rots
-    float rotOffsets[RESX] {};
-
-    // float heightOfPlayer;
-    float playerRot;
-    float inGameHeight;
-    float inGameWidth;
-    float distFromPlayer;
-    char skyTexture;
-
-    //2D pixel array
-    char pixelTexture[RESY][RESX];
-    int pixelColors[RESY][RESX];
-
-    Screen(float playerH, float sHeight, float sWidth, float sDist, char sky)
-    {
-        // heightOfPlayer = playerH;
-        playerRot = 0;
-        inGameWidth = sWidth;
-        inGameHeight = sHeight;
-        distFromPlayer = sDist;
-        skyTexture = sky;
-
-        // pitchArr[RESY] = {};
-        // rotOffsets[RESX] = {};
-        pixelTexture[RESY][RESX] = {};
-        pixelColors[RESY][RESX] = {};
-
-        initializePitches();
-        initializeRotOffset();
-    }
-
-    void printScreen()
-    {
-        printw("printing screen\n");
-        refresh();
-
-        for(int y = 0; y < RESY; y++)
-        {
-            for(int x = 0; x < RESX; x++)
-            {
-                renderPixel(pixelTexture[y][x],(Color)pixelColors[y][x]);
-            }
-            printw("\n");
-        }
-    }
-    void renderAllLines(Map* m);
-    
-
-    ~Screen()
-    {
-        //delete the pitchArr references
-        //delete the rotOFfset array references
-    }
-
-    
-
-    void fillUpTo(int* pitchID, float nextPitch, int colIndex, BlockFace* block)
-    {
-        int pID = *pitchID;
-
-        // printw("inside fill pID: %d", pID);//for testing
-        refresh();
-
-        while(pitchArr[pID] <= nextPitch && pID < RESY)
-        {
-            //get correct screen Y index
-            int screenYPos = RESY - 1 - pID;
-
-            //paint it in for color and texture
-            setPixel(screenYPos, colIndex, block->texture, block->colorID);
-
-
-            *pitchID += 1;
-            pID = *pitchID;
-        }
-    }
-
-    void fillSky(int* pitchID, int colIndex)
-    {
-        while(*pitchID < RESY)
-        {
-            int screenYPos = RESY - 1 - *pitchID;
-            
-            setPixel(screenYPos, colIndex, skyTexture, SKY);
-
-            *pitchID++;
-        }
-    }
-
-    private:
-    void initializePitches()
-    {
-        float lowestY = -0.5 * inGameHeight;
-        float yDelta = inGameHeight / RESY;
-
-        float currY = lowestY;
-
-        for(int i = 0; i < RESY; i++)
-        {
-            currY += yDelta;
-            pitchArr[i] = currY/distFromPlayer;
-            // printw("pitches: %.2f %.2f %.2f %.2f ", pitchArr[i], inGameHeight, currY, distFromPlayer); //for testing
-        }
-
-        refresh();
-    }
-
-    void initializeRotOffset()
-    {
-        float leftWidth = 0.5* inGameWidth;
-        float xDelta = inGameWidth / RESX;
-
-        float currX = leftWidth;
-
-        for(int i = 0; i < RESX; i++)
-        {
-            Angle a(currX, distFromPlayer);
-            rotOffsets[i] = a.gameDir;
-
-            currX -= xDelta;
-        }
-    }
-
-    void setPixel(int y, int x, char texture, Color c)
-    {
-
-        pixelTexture[y][x] = texture;
-        pixelColors[y][x] = c;
-        
-        //FOR TESTING
-        renderPixel(texture,c);
-
-    }
-};
-
-
-
 class Hit{
     public:
-    float sqDist;//top down
+    float dist;//top down
+    pos position;
     BlockFace* closer;
     BlockFace* further;
 
     // Hit(float d, BlockFace c, BlockFace f) : dist(d), closer(c), further(f) {}
 
-    Hit(float sqDistance, pos p, Angle* a, Map* m)
+    Hit(float d, pos p, Angle* a, Map* m)
     {
-        sqDist = sqDistance;
+        dist = d;
+        position.y = p.y;
+        position.x = p.x;
 
         int yInt,xInt;
         int yIsInt = 0;
         int xIsInt = 0;
         float wholeY = round(p.y);
         float wholeX = round(p.x);
-        if(floatsEqual(p.y,wholeY, 0.01)){
+        if(floatsEqual(p.y,wholeY, 0.0001)){
             yIsInt = 1;
             yInt = (int)wholeY;
         }
-        if(floatsEqual(p.x,wholeX,0.01)){
+        if(floatsEqual(p.x,wholeX,0.0001)){
             xIsInt = 1;
             xInt = int(wholeX);
         }
-
-
 
         int yClose, yFar, xClose, xFar;
 
@@ -406,18 +279,28 @@ class Hit{
 
     }
 
+    Hit(const Hit& h)
+    {
+        dist = h.dist;
+        position.y = h.position.y;
+        position.x = h.position.x;
+        closer = new BlockFace(*h.closer);
+        further = new BlockFace(*h.further);
+        // printw("H");
+    }
 
     //POSSIBLE MEMORY LEAK NOT DELETING CLOSER/FURTHER REFS
 
     ~Hit()
     {
-        // delete(closer);
-        // delete(further);
+        // printw("h");
+        delete(closer);
+        delete(further);
     }
 
     string toString()
     {
-        return to_string(sqDist);
+        return to_string(dist);
     }
 
     void print()
@@ -427,119 +310,131 @@ class Hit{
     }
 };
 
-int floatsEqual(const float a, const float b, float epsilon)
-{
-    float diff = abs(a-b);
-    if(diff <= epsilon)
-    {
-        return 1;
-    }
-    else
-        return 0;
-}
+
 
 class Raycast{
     public:
-    vector<Hit> hits;
+    vector<Hit>* hits;
 
-    Raycast(Angle* a, Player* p, Map* m)
+    Raycast(Angle* a, const Player* p, Map* m, vector<Hit>* h)
     {
+        hits = h;
+
         float currDist = 0;
 
         pos rayOrigin = {p->y + 0.5f, p->x + 0.5f};
         pos firstColHitPos = firstColHit(a, p->y, p->x);
+        pos firstRowHitPos = firstRowHit(a, p->y, p->x);
 
-        vector<Hit> colHits = raycastAxis(rayOrigin, firstColHit(a, p->y, p->x), a->YColDelta, a->XColDelta,a,m);
-        vector<Hit> rowHits = raycastAxis(rayOrigin, firstRowHit(a, p->y, p->x), a->YRowDelta, a->XRowDelta,a,m);
 
-        hits = merge_sorted_arrays(colHits,rowHits);
+        castRay(h,rayOrigin,firstColHitPos,firstRowHitPos, a, m);
 
     }
 
 
+    void castRay(vector<Hit>* h, pos rayOrigin, pos firstColPos, pos firstRowPos, Angle* a, Map* m)
+    {
+        float nextColDist = distance(rayOrigin, firstColPos);
+        float nextRowDist = distance(rayOrigin, firstRowPos);
+
+        pos nextColPos = firstColPos;
+        pos nextRowPos = firstRowPos;
+
+        while(posInBounds(nextColPos) && posInBounds(nextRowPos))
+        {
+            if(abs(nextColDist - nextRowDist) < 0.0001)//if their dists are the same, push one and iterate both
+            {
+                //add new hit to hits
+                h->push_back(Hit(nextColDist,nextColPos,a,m));
+
+                //update values
+                updateDistAndPos(&nextColDist, &nextColPos, a->YColDelta,a->XColDelta);
+
+                //update values
+                updateDistAndPos(&nextRowDist, &nextRowPos, a->YRowDelta,a->XRowDelta);
+
+            }
+            else if(nextColDist <= nextRowDist) //nextCol's dist is shorter
+            {
+                //add to new hit to hits
+                h->push_back(Hit(nextColDist,nextColPos,a,m));
+
+                //update values
+                updateDistAndPos(&nextColDist, &nextColPos, a->YColDelta,a->XColDelta);
+
+            }
+            else //nextRow's dist is shorter
+            {
+                //add new hit to hits
+                h->push_back(Hit(nextRowDist,nextRowPos,a,m));
+
+                //update values
+                updateDistAndPos(&nextRowDist, &nextRowPos, a->YRowDelta,a->XRowDelta);
+
+            }
+        }
+
+        //add remaining nextCols if they exists
+        while(posInBounds(nextColPos))
+        {
+            //add to new hit to hits
+            h->push_back(Hit(nextColDist,nextColPos,a,m));
+
+            //update values
+            updateDistAndPos(&nextColDist, &nextColPos, a->YColDelta,a->XColDelta);
+        }
+
+        //add remaining nextRows if they exist
+        while(posInBounds(nextRowPos))
+        {
+            //add new hit to hits
+            h->push_back(Hit(nextRowDist,nextRowPos,a,m));
+
+            //update values
+            updateDistAndPos(&nextRowDist, &nextRowPos, a->YRowDelta,a->XRowDelta);
+        }
+    }
+
+    void updateDistAndPos(float* nDist, pos* nPos, float yDelta, float xDelta)
+    {
+        //calculate next column values
+        float oldD = *nDist;
+        pos oldP = *nPos;
+
+        nPos->y += yDelta;
+        nPos->x += xDelta;
+
+        *nDist = oldD + distance(oldP, *nPos);
+    }
+
+
+
+    ~Raycast()
+    {
+
+        hits->clear();
+        // printw("\n\n\n");
+        // refresh();
+    }
 
     void print()
     {
-        for(int i = 0; i < hits.size(); i++)
+        for(int i = 0; i < hits->size(); i++)
         {
-            hits.at(i).print();
+            hits->at(i).print();
         }
         printw("\n");
         refresh();
     }
 
-    void renderColumn(Screen* s, int columnIndex)
-    {
-        int pitchInd = 0;
-        int hitInd;
-
-        for (hitInd = 0; hitInd < hits.size(); hitInd++)
-        {
-            // printw("hitInd pInd: %d %d - ",hitInd, pitchInd);
-            // printw("checking next hit\n");
-            refresh();
-
-            Hit h = hits.at(hitInd);
-            // printw("retreived next hit, instantiate nextPitch\n");
-            refresh();
-
-            float nextPitch;
-            // printw("entering if statement\n");
-            refresh();
-
-            if (s->pitchArr[pitchInd] <= 0)
-            {
-                // printw("inside 'horizon check' if, test pitchArr access\n");
-                refresh();
-                float trying = s->pitchArr[pitchInd];
-                // printw("accessed pitchArr, getting nextPitch\n");
-                refresh();
-                nextPitch = getPitch(sqrt(h.sqDist), h.closer->height, HEIGHTOFPLAYER);
-                // printw("created nextPitch, trying to access it\n");
-                refresh();
-                float blahBlah = nextPitch + trying;
-                // printw("got next pitch, entering if, pind %d\n", pitchInd);
-                refresh();
-
-                if (s->pitchArr[pitchInd] < nextPitch)
-                {
-                    // printw("trying fill\n");
-                    refresh();
-
-                    s->fillUpTo(&pitchInd, nextPitch, columnIndex, h.closer);
-                    // printw("getPitch(d,objH, nextP): %f %f %f \n", sqrt(h.sqDist), h.further->height, nextPitch); // for testing
-                }
-
-                printw("past hit check if\n");
-                refresh();
-            }
-            else
-            {
-
-                nextPitch = getPitch(sqrt(h.sqDist), h.further->height, HEIGHTOFPLAYER);
-                if (nextPitch > s->pitchArr[pitchInd])
-                {
-                    s->fillUpTo(&pitchInd, nextPitch, columnIndex, h.further);
-                    // printw("getPitch Sky(d,objH, nextP): %f %f %f ", sqrt(h.sqDist), h.further->height, nextPitch); // for testing
-                }
-            }
-
-            refresh();
-        }
-
-        s->fillSky(&pitchInd, columnIndex);
-
-        //for testing
-        refresh();
-    }
-
-
-    private:
     
     float getPitch(float dist, float height, float playerHeight)
     {
         return (height - playerHeight)/dist;
     }
+
+
+    private:
 
     pos firstRowHit(Angle* a, int pY, int pX)
     {
@@ -617,106 +512,247 @@ class Raycast{
         return 0;
     }
 
-    float distanceSquared(const pos& p1, const pos& p2) {
+    float distance(const pos& p1, const pos& p2) {
         float deltaX = p2.x - p1.x;
         float deltaY = p2.y - p1.y;
         
-        return deltaX * deltaX + deltaY * deltaY;
-    }
-
-    vector<Hit> raycastAxis(pos rayOrigin, pos firstHit, float YDelta, float XDelta, Angle* dir, Map* m)
-    {
-        vector<Hit> axisHits;
-
-        pos currP = firstHit;
-
-        while(posInBounds(currP))
-        {
-            float currSqDist = distanceSquared(rayOrigin, currP);
-            
-            axisHits.push_back(Hit(currSqDist, currP, dir, m));
-
-            currP.y += YDelta;
-            currP.x += XDelta;
-        }
-
-        return axisHits;
-    }
-
-    vector<Hit> merge_sorted_arrays(const vector<Hit>& arr1, const vector<Hit>& arr2) {
-        vector<Hit> merged_array;
-        int i = 0;  // Pointer for arr1
-        int j = 0;  // Pointer for arr2
-
-        // Traverse both arrays
-        while (i < arr1.size() && j < arr2.size()) {
-            if (abs(arr1[i].sqDist - arr2[j].sqDist) < 0.001) {
-                merged_array.push_back(arr1[i]);
-                i++;
-                j++;
-            }
-            else if (arr1[i].sqDist <= arr2[j].sqDist){
-                merged_array.push_back(arr1[i]);
-                i++;
-            } 
-            else {
-                merged_array.push_back(arr2[j]);
-                j++;
-            }
-        }
-
-        // Add remaining elements of arr1, if any
-        while (i < arr1.size()) {
-            merged_array.push_back(arr1[i]);
-            i++;
-        }
-
-        // Add remaining elements of arr2, if any
-        while (j < arr2.size()) {
-            merged_array.push_back(arr2[j]);
-            j++;
-        }
-
-        return merged_array;
+        return sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 
 };
 
 
-void Screen::renderAllLines(Map* m)
 
+class Screen{
+    public: 
+    //low to high rise/run
+    float pitchArr[RESY] {};
+    //in game rots
+    float rotOffsets[RESX] {};
+
+    // float heightOfPlayer;
+    float playerRot;
+    float inGameHeight;
+    float inGameWidth;
+    float distFromPlayer;
+    char skyTexture;
+    vector<Hit>* globalHitVector;
+
+    //2D pixel array
+    char pixelTexture[RESY][RESX] {};
+    int pixelColors[RESY][RESX] {};
+
+    Screen(float playerH, float sHeight, float sWidth, float sDist, char sky)
+    {
+        globalHitVector = new vector<Hit>;
+        // heightOfPlayer = playerH;
+        playerRot = 0;
+        inGameWidth = sWidth;
+        inGameHeight = sHeight;
+        distFromPlayer = sDist;
+        skyTexture = sky;
+
+        initializePitches();
+        initializeRotOffset();
+    }
+
+    void printScreen()
+    {
+        printw("printing screen\n");
+        refresh();
+
+        for(int y = 0; y < RESY; y++)
+        {
+            for(int x = 0; x < RESX; x++)
+            {
+                renderPixel(pixelTexture[y][x],(Color)pixelColors[y][x]);
+            }
+            printw("\n");
+        }
+    }
+
+    void renderAllLines(Map* m);
+    
+    void renderColumn(Raycast* r, int columnIndex);
+
+    ~Screen()
+    {
+        delete(globalHitVector);
+        //delete the pitchArr references
+        //delete the rotOFfset array references
+    }
+
+    
+
+    void fillUpTo(int* pitchID, float nextPitch, int colIndex, BlockFace* block)
+    {
+        int pID = *pitchID;
+
+        // printw("inside fill pID: %d", pID);//for testing
+        refresh();
+
+        while(pitchArr[pID] <= nextPitch && pID < RESY)
+        {
+            //get correct screen Y index
+            int screenYPos = RESY - 1 - pID;
+
+            //paint it in for color and texture
+            setPixel(screenYPos, colIndex, block->texture, block->colorID);
+
+
+            *pitchID += 1;
+            pID = *pitchID;
+        }
+    }
+
+    void fillSky(int* pitchID, int colIndex)
+    {
+        while(*pitchID < RESY)
+        {
+            int screenYPos = RESY - 1 - *pitchID;
+            
+            setPixel(screenYPos, colIndex, skyTexture, SKY);
+
+            *pitchID += 1;
+        }
+    }
+
+    private:
+    void initializePitches()
+    {
+        float lowestY = -0.5 * inGameHeight;
+        float yDelta = inGameHeight / RESY;
+
+        float currY = lowestY;
+
+        for(int i = 0; i < RESY; i++)
+        {
+            pitchArr[i] = currY/distFromPlayer;
+            currY += yDelta;
+            // printw("pitches: %.2f %.2f %.2f %.2f ", pitchArr[i], inGameHeight, currY, distFromPlayer); //for testing
+        }
+
+        refresh();
+    }
+
+    void initializeRotOffset()
+    {
+        float leftWidth = -0.5* inGameWidth;
+        float xDelta = inGameWidth / RESX;
+
+        float currX = leftWidth;
+
+        for(int i = 0; i < RESX; i++)
+        {
+            Angle a(currX, distFromPlayer);
+            rotOffsets[i] = a.gameDir;
+
+            currX += xDelta;
+        }
+    }
+
+    void setPixel(int y, int x, char texture, Color c)
+    {
+
+        pixelTexture[y][x] = texture;
+        pixelColors[y][x] = c;
+        
+        // //FOR TESTING
+        // renderPixel(texture,c);
+
+    }
+};
+
+
+
+int floatsEqual(const float a, const float b, float epsilon)
 {
+    float diff = abs(a-b);
+    if(diff <= epsilon)
+    {
+        return 1;
+    }
+    else
+        return 0;
+}
+
+
+
+void Screen::renderColumn(Raycast *r, int columnIndex)
+{
+    int pitchInd = 0;
+    int hitInd;
+
+
+    // //for testing
+    // printw("\n");
+
+    for (hitInd = 0; hitInd < r->hits->size(); hitInd++)
+    {
+        
+        Hit h = r->hits->at(hitInd);
+        
+        float nextPitch;
+        
+
+        if (pitchArr[pitchInd] <= 0)
+        {
+            
+            
+            nextPitch = r->getPitch(h.dist, h.closer->height, HEIGHTOFPLAYER);
+                            
+
+            if (pitchArr[pitchInd] < nextPitch)
+            {
+                fillUpTo(&pitchInd, nextPitch, columnIndex, h.closer);
+            }
+
+        }
+        else
+        {
+
+            nextPitch = r->getPitch(h.dist, h.further->height, HEIGHTOFPLAYER);
+            if (nextPitch > pitchArr[pitchInd])
+            {
+                fillUpTo(&pitchInd, nextPitch, columnIndex, h.further);
+            }
+        }
+
+    }
+
+    fillSky(&pitchInd, columnIndex);
+
+
+}
+
+
+
+void Screen::renderAllLines(Map* m)
+{
+    // Angle* a = new Angle(rotOffsets[4]);
+    // Raycast* r = new Raycast(a, PLAYER, m, globalHitVector);
+
     for(int x = 0; x < RESX; x++)
     {
-        printw("start rendering line, creating angle for raycast\n");
-        refresh();
         Angle* a = new Angle(rotOffsets[x]);
-        printw("created angle, creating raycast\n");
-        refresh();
-        float stuff = a->radians;
-        stuff += 1;
-        printw("1 %f\n", stuff);
-        refresh();
-        int abc = PLAYER->pokeballs + 1;//for testing
-        abc += 1;
-        printw("2 %d\n", abc);
-        refresh();
-        int minin = m->manhattan;
-        minin += 1;
-        printw("3 %d\n", minin);
-        refresh();
+        Raycast* r = new Raycast(a, PLAYER, m, globalHitVector);
+        renderColumn(r,x);
 
-        Raycast r(a, PLAYER, m);
-        printw("created raycast obj, try to renderColumn\n");
-        refresh();
-        r.renderColumn(this,x);
+        delete(r);
+
+        // clear();
+        // printScreen();
+        // printw("\n");
+        // refresh();
+        // sleep(1);
+
     }
 }
 
 
 
 int sign(float x) {
-    if(abs(x) < 0.001){
+    if(abs(x) < 0.0001){
         return 0;
     }
     else if (x > 0.0) {
@@ -734,8 +770,8 @@ int main(int argc, char* argv[])
     initscr();
     noecho();
     keypad(stdscr, TRUE); 
-    start_color();
-    initColors();
+    // start_color();
+    // initColors();
 
     //srand(time(NULL));                                  //init Rand
 
@@ -748,21 +784,23 @@ int main(int argc, char* argv[])
     {
         clear();
         printMap(m);
-        char input[4];
-        getnstr(input, 4);
-        float num = atof(input);
-        printw("%f?\n", num);
-        refresh();
-        getch();
 
-        // Angle* a = new Angle(num);
-
-        // Raycast* r = new Raycast(a, PLAYER, m);
 
         Screen* s = new Screen(1.8, 3, 4, .75, 's');
 
-        // r->print();
-        // r->renderColumn(s, 0);
+
+        Angle* a = new Angle(.5);
+        Raycast* r = new Raycast(a, PLAYER, m, s->globalHitVector);
+        s->renderColumn(r,0);
+
+        a = new Angle(1);
+        r = new Raycast(a, PLAYER, m, s->globalHitVector);
+        s->renderColumn(r,0);
+
+        a = new Angle(1.5);
+        r = new Raycast(a, PLAYER, m, s->globalHitVector);
+        s->renderColumn(r,0);
+        
 
         s->renderAllLines(m);
         s->printScreen();
@@ -771,12 +809,7 @@ int main(int argc, char* argv[])
         refresh();
         c = getch();
 
-
-        /*
-            getting bugs trying to delete these pointers
-        */
-        // delete(a);
-        // delete(r);
+        delete(s);
 
     }
 
