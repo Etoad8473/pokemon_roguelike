@@ -1,9 +1,0 @@
-this was a lot of work
-
-works for all 6 input types nswefq
-also works for incorrect input types
-pokemarts & centers spawn together, but their probability is per the specification
-borders of the world have roads blocked off
-
-BUG:
-if you put in multiple inputs in the same line it will run on all of them and possibly crash
