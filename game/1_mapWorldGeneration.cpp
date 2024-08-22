@@ -10,6 +10,7 @@ Map* createMapTile(int y, int x, int n, int s, int e, int w, int numNPCs)
     fillMap(m, n,s,e,w);
     m->turnHeap = new Heap(8);
     m->turn = 0;
+    m->manhattan = abs(y-200) + abs(x-200);
 
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
@@ -241,11 +242,26 @@ int coordOrRand(int coordinate, int min, int max)
     }
 }
 
+/*
+NOTE: Min and max cannot be the same number
+*/
 int getRandMnMx(int min, int max) {
-    return getRandLwSz(min, max-min);
+
+    if(max < min)
+    {
+        cerr<<"getRandMnMx(min:"<<min<<", max:"<<max<<") Error: max less than min" <<endl;
+        return getRandLwSz(min, 0); //throws floating point exception
+    }
+
+    return getRandLwSz(min, max-min + 1);//+1 makes it inclusive
 }
 
+/*
+NOTE: size cannot be 0
+*/
 int getRandLwSz(int lowest, int size) {
-    return lowest + rand() % size;
+    if(size <= 0){cerr<<"getRandLwSz Error: size less than 0"<<endl;}
+
+    return lowest + (rand() % size);
 }
 

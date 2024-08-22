@@ -1,14 +1,13 @@
 FUNCTIONALITY:
-We are opening different csv viles
+Pokemon game with wild pokemon encounters and trainer pokemon
 
 TO RUN:
 make
-./poke <option>
+./poke
 
 
 NOTES:
--the print statements are not uniform. some are formatted better than others, some I got a little lazy, all conform to the spec sheet.
--INT_MAX is printed as "None"
+-spawn rate is 1/5 in grass
 
 
 BUGS:

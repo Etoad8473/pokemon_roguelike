@@ -2,18 +2,20 @@
 #define POKEMONH_H
 
 // #include <stdio.h>
+#include <cmath>
 #include <cstring>
 #include <cstdlib>
-#include <time.h>
-#include <string.h>
+#include <fstream>
+#include <iostream>
 #include <limits.h>
+#include <ncurses.h>
+#include <sstream>
+#include <string>
+#include <string.h>
+#include <time.h>
 // #include <windows.h>
 #include <unistd.h>
-#include <ncurses.h>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <unordered_map>
 #include <vector>
 
 #define HEIGHT 21
@@ -23,9 +25,12 @@
 #define DEFAULT_NUM_TRAINERS 5
 #define NPC_SPAWN_ATTEMPTS 10
 
+using namespace std;
 
 
 class Map;
+class Pokemon;
+
 
 class Character{
     public:
@@ -38,7 +43,8 @@ class Character{
     int turnOrder;
     int currDir;
     int defeated;
-    
+    vector<Pokemon> *pokeRoster;
+
     Map* (*moveFunct)(struct Map* m, struct Character* c);
     //pointer to generic movement function
 };
@@ -105,12 +111,200 @@ class Map
     int characterOrder;
     Heap* turnHeap;
     int turn;
-
+    int manhattan;
 };
 
 
+class PokemonInfo{
+    public:
+    int id;
+    string name;
+    int spc_id;
+    int height;
+    int weight;
+    int base_exp;
+    int order;
+    int is_default;
+
+    void print();
+    PokemonInfo(int id, string identifier, int species_id, int h, int w, int base_experience, int order, int is_default);
+    PokemonInfo(string line);
+};
 
 
+class Move{
+    public:
+    int id;
+    string name;
+    int gen;
+    int type;
+    int power;
+    int pp;
+    int accuracy;
+    int priority;
+    int target;
+    int damage_class;
+    int effect;
+    int effect_chance;
+    int contest_type;
+    int contest_effect;
+    int super_contest_effect;
+
+    void print();
+    Move(int id, string name, int gen, int type, int power, int pp, int accuracy, 
+    int priority, int target, int damage_class, int effect, int effect_chance, 
+    int contest_type, int contest_effect, int super_contest_effect);
+    Move(string line);
+};
+
+class PokemonMove {
+public:
+    int pokemon_id;
+    int version_group;
+    int move_id;
+    int pokemon_move_method_id;
+    int level;
+    int order;
+
+    PokemonMove(int pokemon_id, int version_group, int move_id, int pokemon_move_method_id, int level, int order);
+    PokemonMove(string line);
+    void print();
+};
+
+class Species {
+public:
+    int id;
+    string name;
+    int evolves_from_species_id;
+    int evolution_chain_id;
+    int color_id;
+    int shape_id;
+    int habitat_id;
+    int gender_rate;
+    int capture_rate;
+    int base_happiness;
+    int is_baby;
+    int hatch_counter;
+    int has_gender_differences;
+    int growth_rate_id;
+    int forms_switchable;
+    int is_legendary;
+    int is_mythical;
+    int order;
+    int conquest_order;
+
+    Species(int id, string name, int evolves_from_species_id, int evolution_chain_id, int color_id, int shape_id, int habitat_id, int gender_rate, int capture_rate, int base_happiness, int is_baby, int hatch_counter, int has_gender_differences, int growth_rate_id, int forms_switchable, int is_legendary, int is_mythical, int order, int conquest_order);
+    Species(string line);
+    void print();
+};
+
+class Experience {
+public:
+    int growth_rate_id;
+    int level;
+    int experience;
+
+    Experience(int growth_rate_id, int level, int experience);
+    Experience(string line);
+    void print();
+};
+
+class TypeName {
+public:
+    int type_id;
+    int local_language;
+    string name;
+
+    TypeName(int type_id, int local_language, string name);
+    TypeName(string line);
+    void print();
+};
+
+class PokemonStats {
+public:
+    int pokemon_id;
+    int stat_id;
+    int base_stat;
+    int effort;
+
+    PokemonStats(int pokemon_id, int stat_id, int base_stat, int effort);
+    PokemonStats(string line);
+    void print();
+};
+
+class Stats {
+public:
+    int id;
+    int damage_class_id;
+    string name;
+    int is_battle_only;
+    int game_index;
+
+    Stats(int id, int damage_class_id, string name, int is_battle_only, int game_index);
+    Stats(string line);
+    void print();
+};
+
+class PokemonType {
+public:
+    int pokemon_id;
+    int type_id;
+    int slot;
+
+    PokemonType(int pokemon_id, int type_id, int slot);
+    PokemonType(string line);
+    void print();
+};
+
+class Pokedex{
+    public:
+    vector<PokemonInfo> pokemonInfoList;
+    vector<Move> moveList;
+    vector<PokemonMove> pokemonMoveList;
+    vector<Species> speciesList;
+    vector<Experience> experienceList;
+    vector<TypeName> typeNameList;
+    vector<PokemonStats> pokemonStatsList;
+    vector<Stats> statsList;
+    vector<PokemonType> pokemonTypeList;
+
+    unordered_map<int, Move*> moveTable;
+    unordered_map<int, PokemonInfo*> pokemonInfoTable;
+
+    Pokedex();
+    // PokemonInfo* getRandPokemonInfo();
+
+};
+
+class Pokemon{
+
+    public:
+    //permanent
+    int csvIndex;//the index the pokemon is read in from
+    int gender;
+    int shiny;
+    PokemonInfo* info;
+
+    //dynamic
+    int level;
+    vector<Move*> movesKnown;
+    int currHP;
+    int stats[6]; //the actual stats used in game/battle
+
+    string toString();
+    void levelUp();
+    Pokemon(int csvInd, int manHattanDist);
+
+    private:
+    int IVStats[6];
+    int baseStats[6];
+    
+    void setLevel(int lvl);
+    void setInitialLevelNStats(int manhattanDist);
+    void setBaseStats();
+    void initializeMoves(int lvl);
+
+};
 
 
 extern Map* worldMap[401][401];
@@ -128,8 +322,8 @@ extern Node* rivalPMap[HEIGHT][WIDTH];
 
 extern Player* PLAYER;
 extern int quitGame;
-extern char errorMsg[];
-
+extern stringstream DEBUGprint;
+extern stringstream MESSAGEprint;
 
 
 
@@ -209,8 +403,33 @@ void sendPlayerToNewMap(Map* oldM, Map* newM);
 
 // int csvRunner(int argc, char* argv[]);
 int mainParseCSVs();
+int mainParseCSVs(string option);
+vector<string> lineParser(const string &s, char splitter);
+void printStringVector(vector<string> words);
+vector<PokemonInfo> importPokemonList(istream &file);
+void printPokemonList(vector<PokemonInfo>& pokedex);
+vector<Move> importMoveList(istream& file);
+void printMoveList(vector<Move>& moveList);
+vector<PokemonMove> importPokemonMoveList(istream& file);
+void printPokemonMovesList(vector<PokemonMove>& pokemonMovesList);
+vector<Species> importSpeciesList(istream& file);
+void printPokemonSpeciesList(vector<Species>& speciesList);
+vector<Experience> importExperienceList(istream& file);
+void printExperienceList(vector<Experience>& experienceList);
+vector<TypeName> importTypeNameList(istream& file);
+void printTypeNameList(vector<TypeName>& typeNameList);
+vector<PokemonStats> importPokemonStatsList(istream& file);
+void printPokemonStatsList(vector<PokemonStats>& pokemonStatsList);
+vector<Stats> importStatsList(istream& file);
+void printStatsList(vector<Stats>& statsList);
+vector<PokemonType> importPokemonTypeList(istream& file);
+void printPokemonTypeList(vector<PokemonType>& pokemonTypeList);
 
 
+//8: pokemon mechanics
+void wildPokemon_cutscene(Map* m);
+void startPokemon_cutscene();
+void printMessage(const char* s);
 
 
 

@@ -203,6 +203,9 @@ Character* spawnCharacterHelper(char ch, Map* m, int y, int x, int order)
     //set to not defeated
     c->defeated = 0;
 
+    
+    c->pokeRoster = new vector<Pokemon>;
+
     m->turnHeap->heapInsert(createDNode(c->y,c->x,c->nextTurn,0));
 
     return c;
@@ -219,7 +222,14 @@ Character* spawnNPC(char ch, Map* m, int y, int x)
     if(ch != 'a')
     {
         Character* npc = spawnCharacterHelper(ch,m,y,x, nextCharacterOrder(m));
-        m->npcList[(npc->turnOrder-1)] = npc;
+        m->npcList[(npc->turnOrder-1)] = npc;//add them to the maps list of NPCs
+
+        while(npc->pokeRoster->size()<6)
+        {
+            npc->pokeRoster->push_back(Pokemon(-1, m->manhattan));
+            if(probability(0.4)){break;}
+        }
+
         return npc;
     }
     else
@@ -561,14 +571,11 @@ Map* playerMove(Map* m, Character* c)
 {
     printMap(m);//only print when the player moves
 
-    // setMessage("none");
-    strcpy(errorMsg, "no message");
-
     m->turn = c->nextTurn; //remember what turn it is between maps
 
     Map* prevM = m;
     m = keyboardInput(m,c);
-    if(m != prevM){return m;}
+    if(m != prevM){return m;}//if we changed maps, return
         
     
     //get next XY from the characterDir
@@ -578,8 +585,16 @@ Map* playerMove(Map* m, Character* c)
     int nextWeight = getTerrainWeight(c->weights, m, nextY, nextX);
 
 
+
     if(m->map[nextY][nextX] != '=')
     {
+        //check for wildPokemon
+        if(m->map[c->y][c->x]==':')
+        {
+            if(probability(0.2)){
+                wildPokemon_cutscene(m);
+            }
+        }
         if(nextWeight<SHRT_MAX)//if passable
         {
             //if someone's there (and not yourself), battle

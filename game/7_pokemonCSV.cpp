@@ -1,188 +1,8 @@
 #include "0_pokemonH.h"
 
 
-using namespace std;
 
 
-class Pokemon{
-    public:
-    int id;
-    string name;
-    int spc_id;
-    int height;
-    int weight;
-    int base_exp;
-    int order;
-    int is_default;
-
-    void print();
-    Pokemon(int id, string identifier, int species_id, int h, int w, int base_experience, int order, int is_default);
-    Pokemon(string line);
-};
-
-class Move{
-    public:
-    int id;
-    string name;
-    int gen;
-    int type;
-    int power;
-    int pp;
-    int accuracy;
-    int priority;
-    int target;
-    int damage_class;
-    int effect;
-    int effect_chance;
-    int contest_type;
-    int contest_effect;
-    int super_contest_effect;
-
-    void print();
-    Move(int id, string name, int gen, int type, int power, int pp, int accuracy, 
-    int priority, int target, int damage_class, int effect, int effect_chance, 
-    int contest_type, int contest_effect, int super_contest_effect);
-    Move(string line);
-};
-
-class PokemonMove {
-public:
-    int pokemon_id;
-    int version_group;
-    int move_id;
-    int pokemon_move_method_id;
-    int level;
-    int order;
-
-    PokemonMove(int pokemon_id, int version_group, int move_id, int pokemon_move_method_id, int level, int order);
-    PokemonMove(string line);
-    void print();
-};
-
-class PokemonSpecies {
-public:
-    int id;
-    string name;
-    int evolves_from_species_id;
-    int evolution_chain_id;
-    int color_id;
-    int shape_id;
-    int habitat_id;
-    int gender_rate;
-    int capture_rate;
-    int base_happiness;
-    int is_baby;
-    int hatch_counter;
-    int has_gender_differences;
-    int growth_rate_id;
-    int forms_switchable;
-    int is_legendary;
-    int is_mythical;
-    int order;
-    int conquest_order;
-
-    PokemonSpecies(int id, string name, int evolves_from_species_id, int evolution_chain_id, int color_id, int shape_id, int habitat_id, int gender_rate, int capture_rate, int base_happiness, int is_baby, int hatch_counter, int has_gender_differences, int growth_rate_id, int forms_switchable, int is_legendary, int is_mythical, int order, int conquest_order);
-    PokemonSpecies(string line);
-    void print();
-};
-
-class Experience {
-public:
-    int growth_rate_id;
-    int level;
-    int experience;
-
-    Experience(int growth_rate_id, int level, int experience);
-    Experience(string line);
-    void print();
-};
-
-class TypeName {
-public:
-    int type_id;
-    int local_language;
-    string name;
-
-    TypeName(int type_id, int local_language, string name);
-    TypeName(string line);
-    void print();
-};
-
-class PokemonStats {
-public:
-    int pokemon_id;
-    int stat_id;
-    int base_stat;
-    int effort;
-
-    PokemonStats(int pokemon_id, int stat_id, int base_stat, int effort);
-    PokemonStats(string line);
-    void print();
-};
-
-class Stats {
-public:
-    int id;
-    int damage_class_id;
-    string name;
-    int is_battle_only;
-    int game_index;
-
-    Stats(int id, int damage_class_id, string name, int is_battle_only, int game_index);
-    Stats(string line);
-    void print();
-};
-
-class PokemonType {
-public:
-    int pokemon_id;
-    int type_id;
-    int slot;
-
-    PokemonType(int pokemon_id, int type_id, int slot);
-    PokemonType(string line);
-    void print();
-};
-
-
-int mainParseCSVs(string option);
-vector<string> lineParser(const string &s, char splitter);
-void printSVector(vector<string> words);
-vector<Pokemon> importPokemonList(istream &file);
-void printPokemonList(vector<Pokemon> pokedex);
-vector<Move> importMoveList(istream& file);
-void printMoveList(vector<Move>& moveList);
-vector<PokemonMove> importPokemonMoves(istream& file);
-void printPokemonMovesList(vector<PokemonMove>& pokemonMovesList);
-vector<PokemonSpecies> importPokemonSpeciesList(istream& file);
-void printPokemonSpeciesList(vector<PokemonSpecies>& speciesList);
-vector<Experience> importExperienceList(istream& file);
-void printExperienceList(vector<Experience>& experienceList);
-vector<TypeName> importTypeNameList(istream& file);
-void printTypeNameList(vector<TypeName>& typeNameList);
-vector<PokemonStats> importPokemonStatsList(istream& file);
-void printPokemonStatsList(vector<PokemonStats>& pokemonStatsList);
-vector<Stats> importStatsList(istream& file);
-void printStatsList(vector<Stats>& statsList);
-vector<PokemonType> importPokemonTypeList(istream& file);
-void printPokemonTypeList(vector<PokemonType>& pokemonTypeList);
-
-
-/*Terminal start with csv parameter */
-int main(int argc, char* argv[])
-{
-    if (argc == 2) //TODO: check all input types
-    {
-        string option = argv[1];
-        return mainParseCSVs(option);
-    }
-    else
-    {
-        printf("Usage:  ./poke <desired csv>\n");
-        return 1;
-    }
-
-}
 
 int mainParseCSVs(string option)
 {
@@ -219,8 +39,8 @@ int mainParseCSVs(string option)
             switch(fileID)
             {
                 case 0:{
-                    vector<Pokemon> pokemonList = importPokemonList(file);
-                    printPokemonList(pokemonList);
+                    vector<PokemonInfo> pokemonInfoList = importPokemonList(file);
+                    printPokemonList(pokemonInfoList);
                     break;
                 }
 
@@ -231,13 +51,13 @@ int mainParseCSVs(string option)
                 }
 
                 case 2:{
-                    vector<PokemonMove> pokemonMovesList = importPokemonMoves(file);
+                    vector<PokemonMove> pokemonMovesList = importPokemonMoveList(file);
                     printPokemonMovesList(pokemonMovesList);
                     break;
                 }
 
                 case 3:{
-                    vector<PokemonSpecies> speciesList = importPokemonSpeciesList(file);
+                    vector<Species> speciesList = importSpeciesList(file);
                     printPokemonSpeciesList(speciesList);
                     break;
                 }
@@ -299,16 +119,9 @@ vector<string> lineParser(const string &s, char splitter)
 
 }
 
-void printSVector(vector<string> words)
-{
-    for (const auto& word : words) {
-        cout << word << endl;
-    }
-}
 
 
-
-Pokemon::Pokemon(string line)
+PokemonInfo::PokemonInfo(string line)
 {
     vector<string> words = lineParser(line, ','); // Split the line into fields
     
@@ -331,7 +144,7 @@ Pokemon::Pokemon(string line)
 
 }
 
-Pokemon::Pokemon(int id, string identifier, int species_id, int h, int w, int base_experience, int order, int is_default)
+PokemonInfo::PokemonInfo(int id, string identifier, int species_id, int h, int w, int base_experience, int order, int is_default)
 {
     this->id = id;
     name = identifier;
@@ -344,38 +157,20 @@ Pokemon::Pokemon(int id, string identifier, int species_id, int h, int w, int ba
 }
 
 /*trashes first line*/
-vector<Pokemon> importPokemonList(istream &file)
+vector<PokemonInfo> importPokemonList(istream &file)
 {
     string line;
-    vector<Pokemon> pokedex;
+    vector<PokemonInfo> pokedex;
 
     getline(file,line);//trash first line
 
     while (getline(file, line))
     {
-        Pokemon p(line);
+        PokemonInfo p(line);
         pokedex.push_back(p);
     }
 
     return pokedex;
-}
-
-void Pokemon::print() {
-    cout << id << ", "
-         << name << ", "
-         << (spc_id == INT_MAX ? "None" : to_string(spc_id)) << ", "
-         << (height == INT_MAX ? "None" : to_string(height)) << ", "
-         << (weight == INT_MAX ? "None" : to_string(weight)) << ", "
-         << (base_exp == INT_MAX ? "None" : to_string(base_exp)) << ", "
-         << (order == INT_MAX ? "None" : to_string(order)) << ", "
-         << (is_default == INT_MAX ? "None" : to_string(is_default)) << endl;
-}
-
-void printPokemonList(vector<Pokemon> pokedex)
-{
-    for (Pokemon& p : pokedex) {
-        p.print();
-    }
 }
 
 
@@ -433,37 +228,9 @@ vector<Move> importMoveList(istream& file) {
     return moveList;
 }
 
-void Move::print() {
-    cout << "ID: " << (id == INT_MAX ? "None" : to_string(id)) << endl;
-    cout << "Name: " << name << endl;
-    cout << "Generation: " << (gen == INT_MAX ? "None" : to_string(gen)) << endl;
-    cout << "Type: " << (type == INT_MAX ? "None" : to_string(type)) << endl;
-    cout << "Power: " << (power == INT_MAX ? "None" : to_string(power)) << endl;
-    cout << "PP: " << (pp == INT_MAX ? "None" : to_string(pp)) << endl;
-    cout << "Accuracy: " << (accuracy == INT_MAX ? "None" : to_string(accuracy)) << endl;
-    cout << "Priority: " << (priority == INT_MAX ? "None" : to_string(priority)) << endl;
-    cout << "Target: " << (target == INT_MAX ? "None" : to_string(target)) << endl;
-    cout << "Damage Class: " << (damage_class == INT_MAX ? "None" : to_string(damage_class)) << endl;
-    cout << "Effect: " << (effect == INT_MAX ? "None" : to_string(effect)) << endl;
-    cout << "Effect Chance: " << (effect_chance == INT_MAX ? "None" : to_string(effect_chance)) << endl;
-    cout << "Contest Type: " << (contest_type == INT_MAX ? "None" : to_string(contest_type)) << endl;
-    cout << "Contest Effect: " << (contest_effect == INT_MAX ? "None" : to_string(contest_effect)) << endl;
-    cout << "Super Contest Effect: " << (super_contest_effect == INT_MAX ? "None" : to_string(super_contest_effect)) << endl;
-}
-
-void printMoveList(vector<Move>& moveList) 
-{
-    for (Move& move : moveList) 
-    {
-        move.print();
-        cout << endl;
-    }
-}
 
 
-
-
-vector<PokemonMove> importPokemonMoves(istream& file) {
+vector<PokemonMove> importPokemonMoveList(istream& file) {
     string line;
     vector<PokemonMove> pokemonMovesList;
 
@@ -509,40 +276,23 @@ PokemonMove::PokemonMove(int pokemon_id, int version_group, int move_id, int pok
 //     cout << "Pokemon ID: " << pokemon_id << ", Version Group: " << version_group << ", Move ID: " << move_id << ", Pokemon Move Method ID: " << pokemon_move_method_id << ", Level: " << level << ", Order: " << order << endl;
 // }
 
-void PokemonMove::print() {
-    cout << "Pokemon ID: " << (pokemon_id == INT_MAX ? "None" : to_string(pokemon_id)) << endl;
-    cout << "Version Group: " << (version_group == INT_MAX ? "None" : to_string(version_group)) << endl;
-    cout << "Move ID: " << (move_id == INT_MAX ? "None" : to_string(move_id)) << endl;
-    cout << "Pokemon Move Method ID: " << (pokemon_move_method_id == INT_MAX ? "None" : to_string(pokemon_move_method_id)) << endl;
-    cout << "Level: " << (level == INT_MAX ? "None" : to_string(level)) << endl;
-    cout << "Order: " << (order == INT_MAX ? "None" : to_string(order)) << endl;
-}
-
-void printPokemonMovesList(vector<PokemonMove>& pokemonMovesList) {
-    for (PokemonMove& pokemonMove : pokemonMovesList) {
-        pokemonMove.print();
-        cout << endl;
-    }
-}
 
 
-
-
-vector<PokemonSpecies> importPokemonSpeciesList(istream& file) {
+vector<Species> importSpeciesList(istream& file) {
     string line;
-    vector<PokemonSpecies> speciesList;
+    vector<Species> speciesList;
 
     getline(file, line); // Trash the first line (header)
 
     while (getline(file, line)) {
-        PokemonSpecies species(line);
+        Species species(line);
         speciesList.push_back(species);
     }
 
     return speciesList;
 }
 
-PokemonSpecies::PokemonSpecies(string line) {
+Species::Species(string line) {
     vector<string> fields = lineParser(line, ',');
 
     int numFields = 20;
@@ -580,36 +330,8 @@ PokemonSpecies::PokemonSpecies(string line) {
     conquest_order = stoi(fields.at(18));
 }
 
-PokemonSpecies::PokemonSpecies(int id, string name, int evolves_from_species_id, int evolution_chain_id, int color_id, int shape_id, int habitat_id, int gender_rate, int capture_rate, int base_happiness, int is_baby, int hatch_counter, int has_gender_differences, int growth_rate_id, int forms_switchable, int is_legendary, int is_mythical, int order, int conquest_order)
+Species::Species(int id, string name, int evolves_from_species_id, int evolution_chain_id, int color_id, int shape_id, int habitat_id, int gender_rate, int capture_rate, int base_happiness, int is_baby, int hatch_counter, int has_gender_differences, int growth_rate_id, int forms_switchable, int is_legendary, int is_mythical, int order, int conquest_order)
     : id(id), name(name), evolves_from_species_id(evolves_from_species_id), evolution_chain_id(evolution_chain_id), color_id(color_id), shape_id(shape_id), habitat_id(habitat_id), gender_rate(gender_rate), capture_rate(capture_rate), base_happiness(base_happiness), is_baby(is_baby), hatch_counter(hatch_counter), has_gender_differences(has_gender_differences), growth_rate_id(growth_rate_id), forms_switchable(forms_switchable), is_legendary(is_legendary), is_mythical(is_mythical), order(order), conquest_order(conquest_order) {}
-
-void PokemonSpecies::print() {
-    cout << id << "," << name << "," << (evolves_from_species_id == INT_MAX ? "None" : to_string(evolves_from_species_id)) << ","
-         << (evolution_chain_id == INT_MAX ? "None" : to_string(evolution_chain_id)) << ","
-         << (color_id == INT_MAX ? "None" : to_string(color_id)) << ","
-         << (shape_id == INT_MAX ? "None" : to_string(shape_id)) << ","
-         << (habitat_id == INT_MAX ? "None" : to_string(habitat_id)) << ","
-         << (gender_rate == INT_MAX ? "None" : to_string(gender_rate)) << ","
-         << (capture_rate == INT_MAX ? "None" : to_string(capture_rate)) << ","
-         << (base_happiness == INT_MAX ? "None" : to_string(base_happiness)) << ","
-         << (is_baby == INT_MAX ? "None" : to_string(is_baby)) << ","
-         << (hatch_counter == INT_MAX ? "None" : to_string(hatch_counter)) << ","
-         << (has_gender_differences == INT_MAX ? "None" : to_string(has_gender_differences)) << ","
-         << (growth_rate_id == INT_MAX ? "None" : to_string(growth_rate_id)) << ","
-         << (forms_switchable == INT_MAX ? "None" : to_string(forms_switchable)) << ","
-         << (is_legendary == INT_MAX ? "None" : to_string(is_legendary)) << ","
-         << (is_mythical == INT_MAX ? "None" : to_string(is_mythical)) << ","
-         << (order == INT_MAX ? "None" : to_string(order)) << ","
-         << (conquest_order == INT_MAX ? "None" : to_string(conquest_order)) << endl;
-}
-
-void printPokemonSpeciesList(vector<PokemonSpecies>& speciesList) {
-    for (PokemonSpecies& species : speciesList) {
-        species.print();
-        cout << endl;
-    }
-}
-
 
 
 
@@ -638,18 +360,6 @@ Experience::Experience(string line) {
 Experience::Experience(int growth_rate_id, int level, int experience)
     : growth_rate_id(growth_rate_id), level(level), experience(experience) {}
 
-void Experience::print() {
-    cout << "Growth Rate ID: " << growth_rate_id << ", Level: " << level << ", Experience: " << experience << endl;
-}
-
-void printExperienceList(vector<Experience>& experienceList) {
-    for (Experience& exp : experienceList) {
-        exp.print();
-        cout << endl;
-    }
-}
-
-
 
 
 vector<TypeName> importTypeNameList(istream& file) {
@@ -676,18 +386,6 @@ TypeName::TypeName(string line) {
 
 TypeName::TypeName(int type_id, int local_language, string name)
     : type_id(type_id), local_language(local_language), name(name) {}
-
-void TypeName::print() {
-    cout << "Type ID: " << type_id << ", Local Language: " << local_language << ", Name: " << name << endl;
-}
-
-void printTypeNameList(vector<TypeName>& typeNameList) {
-    for (TypeName& typeName : typeNameList) {
-        typeName.print();
-        cout << endl;
-    }
-}
-
 
 
 
@@ -732,18 +430,6 @@ PokemonStats::PokemonStats(string line) {
 PokemonStats::PokemonStats(int pokemon_id, int stat_id, int base_stat, int effort)
     : pokemon_id(pokemon_id), stat_id(stat_id), base_stat(base_stat), effort(effort) {}
 
-void PokemonStats::print() {
-    cout << "Pokemon ID: " << pokemon_id << ", Stat ID: " << stat_id << ", Base Stat: " << base_stat << ", Effort: " << effort << endl;
-}
-
-void printPokemonStatsList(vector<PokemonStats>& pokemonStatsList) {
-    for (PokemonStats& pokemonStats : pokemonStatsList) {
-        pokemonStats.print();
-        cout << endl;
-    }
-}
-
-
 
 
 vector<Stats> importStatsList(istream& file) {
@@ -787,18 +473,6 @@ Stats::Stats(string line) {
 Stats::Stats(int id, int damage_class_id, string name, int is_battle_only, int game_index)
     : id(id), damage_class_id(damage_class_id), name(name), is_battle_only(is_battle_only), game_index(game_index) {}
 
-void Stats::print() {
-    cout << id << "," << (damage_class_id == INT_MAX ? "None" : to_string(damage_class_id)) << "," << name << "," << (is_battle_only == INT_MAX ? "None" : to_string(is_battle_only)) << "," << (game_index == INT_MAX ? "None" : to_string(game_index)) << endl;
-}
-
-void printStatsList(vector<Stats>& statsList) {
-    for (Stats& stats : statsList) {
-        stats.print();
-        cout << endl;
-    }
-}
-
-
 
 
 vector<PokemonType> importPokemonTypeList(istream& file) {
@@ -825,15 +499,3 @@ PokemonType::PokemonType(string line) {
 
 PokemonType::PokemonType(int pokemon_id, int type_id, int slot)
     : pokemon_id(pokemon_id), type_id(type_id), slot(slot) {}
-
-void PokemonType::print() {
-    cout << "Pokemon ID: " << pokemon_id << ", Type ID: " << type_id << ", Slot: " << slot << endl;
-}
-
-void printPokemonTypeList(vector<PokemonType>& pokemonTypeList) {
-    for (PokemonType& pokemonType : pokemonTypeList) {
-        pokemonType.print();
-        cout << endl;
-    }
-}
-

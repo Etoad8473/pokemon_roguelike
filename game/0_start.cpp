@@ -11,17 +11,34 @@ int otherW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 20, 10, SHRT_MAX,
 
 char terrTypes[NUMTERRAINTYPES]={'+','$','#','M','C',':','.','%','^','~','='};
 int quitGame = 0;
-char errorMsg[WIDTH*2];//TODO: make errorMessage functionality
 Player* PLAYER = NULL;
+stringstream DEBUGprint = stringstream();
+stringstream MESSAGEprint = stringstream();
 
 
-
+/*Terminal start with csv parameter */
 // int main(int argc, char* argv[])
 // {
-    
-//     csvRunner(argc, argv); //defined in 7_pokedex.cpp
-
-//     return 0;
+//     if (argc == 2) //TODO: check all input types
+//     {
+//         string option = argv[1];
+//         return mainParseCSVs(option); //defined in 7_pokedex
+//     }
+//     else
+//     {
+//         printf("Usage:  ./poke <desired csv>\n");
+//         return 1;
+//     }
 
 // }
+
+
+
+int main(int argc, char* argv[])
+{
+    gameRunner(5);
+    return 0;
+}
+
+
 

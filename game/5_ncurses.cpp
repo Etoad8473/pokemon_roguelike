@@ -32,7 +32,7 @@ void gameRunner(int numNPC)
     //ship the loading bar:
     //sleep(2); 
     
-
+    startPokemon_cutscene();
 
     printMap(m);
 
@@ -138,8 +138,7 @@ Map* keyboardInput(Map *m, Character *pc)
             case '5':            
             case ' ':
                 pc->currDir = 8;
-                // setMessage("stand still.");
-                strcpy(errorMsg, "stand still.");
+                printMessage("stand still.");
                 break;
 
 
@@ -300,6 +299,12 @@ void pokemonBattle_cutscene(Map* m, Character* npc)
     clear();
 
     printw("\n\n\n\n\n\n------------This is a pokemon battle with NPC #%d!---------\n(press 'esc' to win battle and continue)\n", npc->turnOrder);
+    for(int i = 0; i < npc->pokeRoster->size(); i++)
+    {
+        Pokemon p = npc->pokeRoster->at(i);
+        printw("%s lvl %d\n", p.info->name.c_str(), p.level);
+    }
+    
     refresh();
 
     //resume the game console
