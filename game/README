@@ -1,26 +1,16 @@
 FUNCTIONALITY:
-This program runs the game, moving the NPCs around the map
-Hikers and rivals will chase the PC (player Character), other NPCs will move as per the spec
+This program runs the game with 15 trainers (for scrolling capabilities), you move the PC with controls as per the spec
 
 
 TO RUN:
 make
-./poke --numtrainers <number>
-
-you can run it without the switch and it will default to 5
-<number> must be between [-1:50], -1 sets it to the default
+./poke
 
 
 NOTES:
--There is an intentional short pause between map printings for readability
--The PC always spawns in front of the west gate, and does not move (as per the spec)
--When NPC's try to enter a character occupied space, they do not move (allowed as per spec)
-    -this occasionally results in characters getting stuck on eachother if they are both trying to move into eachothers space
--Hikers and Rivals look drunk: 
-    -they are taking the shortest path but because diagonals are equal length, sometimes it looks like they stumble around
--Rare 'weird' looking behavior (accepted by the spec):
-    -wanderers can appear stuck if they spawn on a single piece of tall grass (I've never seen this but it technically can happen, but is still technically correct as per spec)
+-when exiting the pokemon battle or the trainer list, it takes just a second to load (idk why),, if you also press q the input will process before the screen can print and the game will end.
+-it sometimes looks like the trainers battle you from 1 block away. They are actually moving into contact with you but the cutscene to the pokemon battle happens a split second after the screen shows them making contact. I tried adding a delay but that created input bugs where the game would keep playing in the background. Anyways this only looks like a bug but is fine per the spec.
 
 
 BUGS:
-none that I know of
+none that I know of.

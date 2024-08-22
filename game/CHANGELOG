@@ -92,3 +92,22 @@
     create switch
     spawn all characters
     submit
+
+3/19/24 1pm:
+    installing ncurses
+    getting ncurses to work on windows
+    not working
+    install wsl and ubuntu
+    configure vscode to work
+    ncurses works lets goo
+
+3/21/24 6am:
+    test ncurses with old code
+    add PC movement
+    add spec input controls
+    temporary trainer list and pokemart
+
+    4pm:
+    finish pokemart cutscene
+    trainer list cutscene
+    error message display

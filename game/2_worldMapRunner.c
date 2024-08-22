@@ -25,8 +25,8 @@ void runner()
     while(inp != 'q')
     {
         printMap(currMap);
-        //printf("%s", errorMsg);
-        printf("World Coordinates- X:%d Y:%d (index y%d,x%d) Enter a letter: ", currMap->worldX - 200, 200 - currMap->worldY, currMap->worldY, currMap->worldX);
+        //printw("%s", errorMsg);
+        printw("World Coordinates- X:%d Y:%d (index y%d,x%d) Enter a letter: ", currMap->worldX - 200, 200 - currMap->worldY, currMap->worldY, currMap->worldX);
         scanf(" %c", &inp);
 
         int currY = currMap->worldY;
@@ -40,7 +40,7 @@ void runner()
             case 'n': 
                 // Move north
                 if(prevY < 0) {
-                    printf("You're at the northern border, cannot go further north\n");
+                    printw("You're at the northern border, cannot go further north\n");
                 } else {
                     flyToTile(&currMap, prevY, currX);
                 }
@@ -48,7 +48,7 @@ void runner()
             case 's': 
                 // Move south
                 if (nextY >= WORLDSIZE) {
-                    printf("You're at the southern border, cannot go further south\n");
+                    printw("You're at the southern border, cannot go further south\n");
                 } else {
                     flyToTile(&currMap, nextY, currX);
                 }
@@ -56,7 +56,7 @@ void runner()
             case 'e': 
                 // Move east
                 if (nextX >= WORLDSIZE) {
-                    printf("You're at the eastern border, cannot go further east\n");
+                    printw("You're at the eastern border, cannot go further east\n");
                 } else {
                     flyToTile(&currMap, currY, nextX);
                 }
@@ -64,7 +64,7 @@ void runner()
             case 'w': 
                 // Move west
                 if (prevX < 0) {
-                    printf("You're at the western border, cannot go further west\n");
+                    printw("You're at the western border, cannot go further west\n");
                 } else {
                     flyToTile(&currMap, currY, prevX);
                 }
@@ -73,16 +73,16 @@ void runner()
                 scanf(" %d %d", &nextX, &nextY);
                 nextX += 200; nextY = 200 - nextY;
                 if(nextX < 0 || nextX >= WORLDSIZE || nextY < 0 || nextY >= WORLDSIZE){
-                printf("INVALID INPUT B***H (im sorry for cursing at you)\n");
+                printw("INVALID INPUT B***H (im sorry for cursing at you)\n");
                 } else {
                     flyToTile(&currMap, nextY,nextX);
                 }
                 break;
             case 'q': 
-                printf("QUITTING");
+                printw("QUITTING");
                 break;
             default: 
-                printf("Invalid input.\n");
+                printw("Invalid input.\n");
         }
 
     }    

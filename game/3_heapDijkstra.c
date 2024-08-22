@@ -28,16 +28,16 @@ dNode_t* rivalPMap[HEIGHT][WIDTH] = {NULL};
 //     int playerX = 40;
 //     spawnCharacterHelper('a',m,playerY,playerX,0);
 //     printMap(m);
-//     //printf("trying dijkstra\n");
+//     //printw("trying dijkstra\n");
 
 //     initPathMap(hikerPMap);//NEED TO INITIALIZE FOR ALL THIS TO WORK
 //     //printPathMap(hikerPMap);
 
 //     dijkstra(m,hikerW,hikerPMap,playerY,playerX);
-//     printf("\n--HikerMap--\n");
+//     printw("\n--HikerMap--\n");
 //     printPathMap(hikerPMap);
 //     dijkstra(m,rivalW,hikerPMap,playerY,playerX);
-//     printf("\n--RivalMap--\n");
+//     printw("\n--RivalMap--\n");
 //     printPathMap(hikerPMap);
 
 //     return 0;
@@ -86,13 +86,13 @@ void printPathMap(dNode_t* pMap[HEIGHT][WIDTH])
         for(x=0;x < WIDTH;x++)
         {
             if(pMap[y][x]->currWeight < SHRT_MAX)
-                printf("%02d ", (pMap[y][x]->currWeight % 100));
+                printw("%02d ", (pMap[y][x]->currWeight % 100));
             else   
-                printf("-- ");
+                printw("-- ");
         }
-        printf("\n");
+        printw("\n");
     }
-    printf("\n\n");
+    printw("\n\n");
 }
 
 
@@ -103,7 +103,7 @@ int dijkstra(tMapTile* m, int weight[], dNode_t* pMap[HEIGHT][WIDTH])
     //check if player exists
     if(!playerExists())//if player doesnt exist, throw error
     {
-        printf("dijkstra() cancelled\n-player does not exist");
+        printw("dijkstra() cancelled\n-player does not exist");
         return 1;
     }
 
@@ -224,8 +224,8 @@ void swap(int aPos, int bPos, heap_t* h)
 
 void printHeap(heap_t* h)
 {
-    printf("---HEAP---\nmaxSize: %d\n", h->maxSize);
-    printf("currSize: %d\n", h->currSize);
+    printw("---HEAP---\nmaxSize: %d\n", h->maxSize);
+    printw("currSize: %d\n", h->currSize);
 
     int i;
     for(i = 0; i< h->maxSize; i++)
@@ -233,21 +233,21 @@ void printHeap(heap_t* h)
 
         if(h->heapArr[i])
         {
-            printf("%d: ", i);
+            printw("%d: ", i);
             printDijNode(h->heapArr[i]);
         }
         else
         {
-            printf("%d: Null\n", i);
+            printw("%d: Null\n", i);
         }
     }
-    printf("\n");
+    printw("\n");
 }
 
 void printHeapShort(heap_t* h, int num)
 {
-    printf("---HEAP---\nmaxSize: %d\n", h->maxSize);
-    printf("currSize: %d\n", h->currSize);
+    printw("---HEAP---\nmaxSize: %d\n", h->maxSize);
+    printw("currSize: %d\n", h->currSize);
 
     int i;
     for(i = 0; i< num; i++)
@@ -255,21 +255,21 @@ void printHeapShort(heap_t* h, int num)
 
         if(h->heapArr[i])
         {
-            printf("%d: ", i);
+            printw("%d: ", i);
             printDijNode(h->heapArr[i]);
         }
         else
         {
-            printf("%d: Null\n", i);
+            printw("%d: Null\n", i);
         }
     }
 
-    printf("\n");
+    printw("\n");
 }
 
 void printDijNode(dNode_t *d)
 {
-    printf("Ind: %d - (Y:%d X:%d), Weight: %d\n", d->heapPos, d->y, d->x, d->currWeight);
+    printw("Ind: %d - (Y:%d X:%d), Weight: %d\n", d->heapPos, d->y, d->x, d->currWeight);
 }
 
 
@@ -288,7 +288,7 @@ heap_t* createHeap(int size)
 {
     heap_t *h = (heap_t*)malloc(sizeof(heap_t));
     // if (h == NULL) {
-    //     fprintf(stderr, "Memory allocation failed.\n");
+    //     fprintw(stderr, "Memory allocation failed.\n");
     //     exit(1);
     // }
 
@@ -296,7 +296,7 @@ heap_t* createHeap(int size)
     h->maxSize = size;//CHANGE
     h->heapArr = (dNode_t**)calloc(size,sizeof(dNode_t*));
     // if (h->heapArr == NULL) {
-    //     fprintf(stderr, "Memory allocation failed.\n");
+    //     fprintw(stderr, "Memory allocation failed.\n");
     //     exit(1);
     // }
 
@@ -321,7 +321,9 @@ int getTerrainWeight(int weight[], tMapTile* m, int y, int x)
             return weight[i];
     }
 
-    printf("Could not find terrain");
+    printw("Could not find terrain");
+    refresh();
+    sleep(1);
     return SHRT_MAX;
 
 }
@@ -335,7 +337,7 @@ dNode_t* extractMin(heap_t* h)
 {
     if(!h || heapIsEmpty(h))//if heap is null or empty
     {
-        printf("trying to pop an empty or null heap");
+        printw("trying to pop an empty or null heap");
         return NULL;
     }
 
@@ -348,7 +350,7 @@ dNode_t* extractMin(heap_t* h)
 
     heapifyDown(h,0);//reset heap property
 
-    root->heapPos = (int)NULL;
+    root->heapPos = 0;
     root->status=2;
     return root;
 }
@@ -438,11 +440,11 @@ void freeHeap(heap_t* h)
 // int main(int argc, char* argv[])
 // {
 //     // heap_t* h = createHeap(4);
-//     // printf("-----------INITIALIZATION-----------\n");
+//     // printw("-----------INITIALIZATION-----------\n");
 
 //     // printHeap(h);
 
-//     // printf("-----------AFTER ADDING 3 NODES-----------\n");
+//     // printw("-----------AFTER ADDING 3 NODES-----------\n");
 
 
 //     // temporaryInsert(createDNode(1,1,10,0), h);
@@ -451,14 +453,14 @@ void freeHeap(heap_t* h)
 
 //     // printHeap(h);
 
-//     // // // printf("-----------AFTER SWAP-----------\n");
+//     // // // printw("-----------AFTER SWAP-----------\n");
 
 //     // // // swap(0,1,h);
 
 //     // // // printHeap(h);
 
 
-//     // printf("-----------HEAP INSERT NODES-----------\n");
+//     // printw("-----------HEAP INSERT NODES-----------\n");
 
 
 //     // heapInsert(createDNode(4,4,11,0), h);
@@ -471,20 +473,20 @@ void freeHeap(heap_t* h)
 //     // printHeap(h);
 
 
-//     // printf("-----------POP HEAP-----------\n");
+//     // printw("-----------POP HEAP-----------\n");
 
 //     // printDijNode(extractMin(h));
 
 //     // printHeap(h);
 
 
-//     // printf("-----------SWAP NULL-----------\n");
+//     // printw("-----------SWAP NULL-----------\n");
 
 //     // swap(1,7,h);
 
 //     // printHeap(h);
 
-//     // printf("-----------doubleHeapSize()-----------\n");
+//     // printw("-----------doubleHeapSize()-----------\n");
 
 //     // doubleHeapSize(h);
 //     // doubleHeapSize(h);

@@ -1,79 +1,66 @@
 #include "pokemonH.h"
 
-
 //TODO: clean up by delaring in header and delete duplicate instantiations between C files
 //eg (header): int playerW[11]
 tMapTile* worldMap[401][401] = {NULL};
-int adjVer[8]={0,-1,-1,-1,0,1,1,1};
-int adjHor[8]={1,1,0,-1,-1,-1,0,1};
+int adjVer[9]={0,-1,-1,-1,0,1,1,1,0};
+int adjHor[9]={1,1,0,-1,-1,-1,0,1,0};
 
 int playerW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, 10, 10, 10, 20, 10, SHRT_MAX, SHRT_MAX, SHRT_MAX, 10};
 int hikerW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 15, 10, 15, 15, SHRT_MAX, SHRT_MAX};
 int rivalW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 20, 10, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX};
-int swimmerW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, 7, SHRT_MAX};
 int otherW[NUMTERRAINTYPES] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 20, 10, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX};
 
-char terrTypes[NUMTERRAINTYPES]={'+','$','#','p','c',':','.','%','^','~','='};
-
+char terrTypes[NUMTERRAINTYPES]={'+','$','#','M','C',':','.','%','^','~','='};
+int quitGame = 0;
+char errorMsg[WIDTH];
 characterT* player = NULL;
 
 
 
 
-int nextCharacterOrder(tMapTile *m);
-void printCharacter(characterT* c);
-void printCMap(tMapTile* m);
-void updateCPosition(tMapTile *m, characterT *c, int nY, int nX);
-int rotateDir(int dir, int rot);
-void sentryMove(tMapTile* m, characterT* c);
-void pacerMove(tMapTile* m, characterT* c);
-void explorerMove(tMapTile* m, characterT* c);
-void wandererMove(tMapTile* m, characterT* c);
-void hikerMove(tMapTile* m, characterT* c);
-void rivalMove(tMapTile* m, characterT* c);
-void playerMove(tMapTile* m, characterT* c);
-void swimmerMove(tMapTile* m, characterT* c);
-void npcRunner();
-characterT* spawnPlayer(tMapTile* m, heap_t* h);
-characterT* spawnNPC(char ch, tMapTile* m, heap_t* h, int y, int x);
-int cIsPlayer(characterT* c);
-char getRandNPCType();
-void spawnAllNPCs(int num, tMapTile* m, heap_t* h);
+
+// int main(int argc, char* argv[])
+// {
+
+//     if (argc == 3 && strcmp(argv[1], "--numtrainers") == 0) 
+//     {
+//         int numTrainers = atoi(argv[2]);
+//         if(numTrainers > 50 || numTrainers < -1)
+//         {
+//             printw("Invalid number of trainers (%d). Number must be between [0:50], or -1 for default.\nStopping.\n", numTrainers);
+//             return 1;
+//         }
+//         npcRunner(numTrainers);
+//     }
+//     else if(argc == 1)
+//     {
+//         npcRunner(-1);
+//     }
+//     else
+//     {
+//         printw("Usage: %s --numPlayer <number>\n", argv[0]);
+//         return 1;
+//     }
+
+// }
 
 
 
 
-int main(int argc, char* argv[])
-{
 
-    if (argc == 3 && strcmp(argv[1], "--numtrainers") == 0) 
-    {
-        int numTrainers = atoi(argv[2]);
-        if(numTrainers > 50 || numTrainers < -1)
-        {
-            printf("Invalid number of trainers (%d). Number must be between [0:50], or -1 for default.\nStopping.\n", numTrainers);
-            return 1;
-        }
-        npcRunner(numTrainers);
-    }
-    else if(argc == 1)
-    {
-        npcRunner(-1);
-    }
-    else
-    {
-        printf("Usage: %s --numPlayer <number>\n", argv[0]);
-        return 1;
-    }
 
-}
 
+//NEW STUFF
+
+
+//OBSCELETE
 void npcRunner(int numNPC)
 {
     if(numNPC == -1)
         numNPC = DEFAULT_NUM_TRAINERS;
     
-    printf("Number of trainers: %d\n", numNPC);
+    printw("Number of trainers: %d\n", numNPC);
 
     //--SETUP--//
     heap_t* turnHeap = createHeap(8);                //create heap
@@ -122,13 +109,15 @@ void npcRunner(int numNPC)
         //Sleep(500);
     }
 
-
 }
 
 void spawnAllNPCs(int num, tMapTile* m, heap_t* h)
 {
     int centerY = HEIGHT/2;
     int centerX = WIDTH/2;
+
+    m->npcList = (characterT**)calloc(num, sizeof(characterT*));
+    m->numNPCs = num;
 
     if(num>=1)
     {
@@ -203,7 +192,7 @@ characterT* spawnCharacterHelper(char ch, tMapTile* m, heap_t* h, int y, int x, 
             c->currDir = getRandMnMx(0,7);
             break;
         default:
-            printf("spawnCharacterHelper() cancelled\n-invalid character char input\n");
+            printw("spawnCharacterHelper() cancelled\n-invalid character char input\n");
             free(c);
             return NULL;
             
@@ -212,11 +201,11 @@ characterT* spawnCharacterHelper(char ch, tMapTile* m, heap_t* h, int y, int x, 
 
     int spawnAttempts = 0;
     //check if input is valid location, if not search for valid location to spawn, give up after a while
-    while(getTerrainWeight(c->weights,m,y,x)>=RAND_MAX || m->cMap[y][x])//while terrain is impassable, or someone is in that spot, keep searching
+    while(getTerrainWeight(c->weights,m,y,x)>=SHRT_MAX || m->cMap[y][x])//while terrain is impassable, or someone is in that spot, keep searching
     {
         if(spawnAttempts >= NPC_SPAWN_ATTEMPTS)
         {
-            printf("spawnCharacterHelper() cancelled\n-Could not find a suitable spawn location with %d attempts.\n", NPC_SPAWN_ATTEMPTS);
+            printw("spawnCharacterHelper() cancelled\n-Could not find a suitable spawn location with %d attempts.\n", NPC_SPAWN_ATTEMPTS);
             free(c);
             return NULL;
         }
@@ -235,7 +224,10 @@ characterT* spawnCharacterHelper(char ch, tMapTile* m, heap_t* h, int y, int x, 
     c->nextTurn = 0;
 
     //set turnOrder
-    c->turnOrder = nextCharacterOrder(m);
+    c->turnOrder = order;
+
+    //set to not defeated
+    c->defeated = 0;
 
     heapInsert(createDNode(c->y,c->x,c->nextTurn,0),h);
 
@@ -260,7 +252,7 @@ characterT* spawnPlayer(tMapTile* m, heap_t* h)
         //error msg
     else
     {
-        printf("spawnPlayer() cancelled\n-PC already exists\n");
+        printw("spawnPlayer() cancelled\n-PC already exists\n");
         return NULL;
     }
 }
@@ -272,11 +264,13 @@ characterT* spawnNPC(char ch, tMapTile* m, heap_t* h, int y, int x)
 
     if(playerExists() && ch != 'a')
     {
-        return spawnCharacterHelper(ch,m,h,y,x, nextCharacterOrder(m));
+        characterT* npc = spawnCharacterHelper(ch,m,h,y,x, nextCharacterOrder(m));
+        m->npcList[(npc->turnOrder-1)] = npc;
+        return npc;
     }
     else
     {
-        printf("spawnNPC() cancelled\n-player DNE or tried to create player\n");
+        printw("spawnNPC() cancelled\n-player DNE or tried to create player\n");
         return NULL;
     }
 }
@@ -304,7 +298,7 @@ void updateCPosition(tMapTile *m, characterT *c, int nY, int nX)
 {
     if(m->cMap[nY][nX])
     {
-        printf("updateCPosition() - cancelled\n-Tried to enter a taken position.\n");
+        printw("updateCPosition() - cancelled\n-Tried to enter a taken position.\n");
         return;
     }
 
@@ -333,7 +327,7 @@ int cIsPlayer(characterT* c)
         {return 1;}
     else if(c->character == 'a')
     {
-        printf("cIsPlayer() Warning\n- character is the player but doesn't reference the global player address\n");
+        printw("cIsPlayer() Warning\n- character is the player but doesn't reference the global player address\n");
         return 1;
     }
     else
@@ -347,14 +341,45 @@ int playerExists()
     return 0;
 }
 
+//TODO: fix segmentation fault bug
 void sentryMove(tMapTile* m, characterT* c)
 {
-    //DO NOTHING
-    return;
+    if(c->defeated){
+        return;
+    }
+
+    /*
+    loop through all directions
+        if it is the player
+            turn that dir
+            init pokemon battle
+    */
+
+    //BUG: Creates segmentation fault
+    int i;
+    for(i = 0; i < 8; i++)
+    {
+        int y = c->y + adjVer[i];
+        int x = c->x + adjHor[i];
+
+        if(m->cMap[y][x])
+        {
+            if(cIsPlayer(m->cMap[y][x]))
+            {
+                c->currDir = i;
+                pokemonBattle(m,c);
+                break;
+            }
+        }
+    }
+
 }
 
 void pacerMove(tMapTile* m, characterT* c)
 {
+    if(c->defeated){
+        return;
+    }
     //get nextPos from direction
     int nextY = c->y + adjVer[c->currDir];
     int nextX = c->x + adjHor[c->currDir];
@@ -374,9 +399,14 @@ void pacerMove(tMapTile* m, characterT* c)
     if(m->cMap[nextY][nextX])
     {
         //dont move
+        //if it is the player, initiate pokemon battle
+        if(cIsPlayer(m->cMap[nextY][nextX]))
+        {
+            pokemonBattle(m,c);
+        }
+
     }
     //else
-        //updatePos
     else
     {
         updateCPosition(m,c,nextY,nextX);
@@ -385,13 +415,18 @@ void pacerMove(tMapTile* m, characterT* c)
 
 void explorerMove(tMapTile* m, characterT* c)
 {
+    if(c->defeated){
+        return;
+    }
+
     //get nextPos from direction
     int nextY = c->y + adjVer[c->currDir];
     int nextX = c->x + adjHor[c->currDir];
 
-
-    //check weights, if impassable
-        //random direction, re-get nextPos, check if walkable
+    /*
+    check weights, if impassable
+        random direction, re-get nextPos, check if walkable
+    */
     int nextWeight = getTerrainWeight(c->weights, m, nextY, nextX);
     if(nextWeight>=SHRT_MAX)
     {
@@ -411,10 +446,14 @@ void explorerMove(tMapTile* m, characterT* c)
     if(m->cMap[nextY][nextX])
     {
         //dont move
+        //if it is the player, initiate pokemon battle
+        if(cIsPlayer(m->cMap[nextY][nextX]))
+        {
+            pokemonBattle(m,c);
+        }
+
     }
-    //else
-        //updatePos
-    else
+    else //if the space is not occupied
     {
         updateCPosition(m,c,nextY,nextX);
     }
@@ -422,6 +461,10 @@ void explorerMove(tMapTile* m, characterT* c)
 
 void wandererMove(tMapTile* m, characterT* c)
 {
+    if(c->defeated){
+        return;
+    }
+    
     //get nextPos from direction
     int nextY = c->y + adjVer[c->currDir];
     int nextX = c->x + adjHor[c->currDir];
@@ -448,6 +491,12 @@ void wandererMove(tMapTile* m, characterT* c)
     if(m->cMap[nextY][nextX])
     {
         //dont move
+        //if it is the player, initiate pokemon battle
+        if(cIsPlayer(m->cMap[nextY][nextX]))
+        {
+            pokemonBattle(m,c);
+        }
+
     }
     //else
         //updatePos
@@ -459,6 +508,10 @@ void wandererMove(tMapTile* m, characterT* c)
 
 void hikerMove(tMapTile* m, characterT* c)
 {
+    if(c->defeated){
+        return;
+    }
+    
     //check hikerMap
         //get parentNode's position
     dNode_t* currN = hikerPMap[c->y][c->x];
@@ -481,12 +534,23 @@ void hikerMove(tMapTile* m, characterT* c)
         else
         {
             //do nothing if someone is in the spot
+            
+            //if it is the player, initiate pokemon battle
+            if(cIsPlayer(m->cMap[nextY][nextX]))
+            {
+                pokemonBattle(m,c);
+            }
+
         }
     }
 }
 
 void rivalMove(tMapTile* m, characterT* c)
 {
+    if(c->defeated){
+        return;
+    }
+    
     //check hikerMap
         //get parentNode's position
     dNode_t* currN = rivalPMap[c->y][c->x];
@@ -509,20 +573,51 @@ void rivalMove(tMapTile* m, characterT* c)
         else
         {
             //do nothing if someone is in the spot
+
+            //if it is the player, initiate pokemon battle
+            if(cIsPlayer(m->cMap[nextY][nextX]))
+            {
+                pokemonBattle(m,c);
+            }
         }
     }
 }
 
-//TODO:
+//TODO: for future assignments allow gates to be moved through
 void playerMove(tMapTile* m, characterT* c)
 {
-    printMap(m);//only print when the player moves
-    Sleep(1000);
-}
+    // setMessage("none");
+    strcpy(errorMsg, "no message");
 
-//TODO:
-void swimmerMove(tMapTile* m, characterT* c)
-{
+    keyboardInput(m,c);
+
+
+    //get next XY from the characterDir
+    int nextY = c->y + adjVer[c->currDir];
+    int nextX = c->x + adjHor[c->currDir];    
+    //check if it's passable and not an NPC
+    int nextWeight = getTerrainWeight(c->weights, m, nextY, nextX);
+    if(m->map[nextY][nextX] != '=')    //CURRENTLY NOT ABLE TO MOVE THROUGH GATES
+    {
+        if(nextWeight<SHRT_MAX)//if passable
+        {
+            //if someone's there (and not yourself), battle
+            if(m->cMap[nextY][nextX])
+            {
+                characterT* npc = m->cMap[nextY][nextX];
+                if(!cIsPlayer(npc) && !npc->defeated)
+                {
+                    pokemonBattle(m, npc);
+                }
+            }
+            else  //updatePos
+            {
+                updateCPosition(m,c,nextY,nextX);
+            }
+        }
+    }
+    
+    printMap(m);//only print when the player moves
 }
 
 
@@ -531,31 +626,31 @@ void printCharacter(characterT* c)
 {
     if(!c)
     {
-        printf("printCharacter() cancelled\n-Tried to print null character reference.\n");
+        printw("printCharacter() cancelled\n-Tried to print null character reference.\n");
         return;
     }
 
-    printf("CHARACTER: %c\n",c->character);
-    printf("direction:%d\n",c->currDir);
-    printf("last turn: %d\n",c->nextTurn);
-    printf("y: %d, x: %d\n",c->y, c->x);
-    printf("turn order: %d\n\n",c->turnOrder);
+    printw("CHARACTER: %c\n",c->character);
+    printw("direction:%d\n",c->currDir);
+    printw("last turn: %d\n",c->nextTurn);
+    printw("y: %d, x: %d\n",c->y, c->x);
+    printw("turn order: %d\n\n",c->turnOrder);
 }
 
 void printCMap(tMapTile* m)
 {
-    printf("\n\n");
+    printw("\n\n");
 
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             if(m->cMap[i][j])//if not null
-                printf("%c", m->cMap[i][j]->character);
+                printw("%c", m->cMap[i][j]->character);
             else
-                printf("-");
+                printw("-");
         }
-        printf("\n");
+        printw("\n");
     }
-    printf("\n\n");
+    printw("\n\n");
 }
 
 
@@ -586,7 +681,7 @@ void flyToTile(tMapTile **currMap, int y, int x)//coordinates
 {
     if(x < 0 || x >= WORLDSIZE || y < 0 || y >= WORLDSIZE)
     {
-        printf("EzWarning: out of bounds input parameters passed to flyToTile function\n");
+        printw("EzWarning: out of bounds input parameters passed to flyToTile function\n");
         return;
     }
 
@@ -672,7 +767,7 @@ void linkMapToWorld(tMapTile *m, int y, int x)
         }
     else
         {
-            printf("TRYING TO WRITE OVER PREVIOUSLY EXISTING TILE in variable 'WORLDMAP' with function 'CREATEMAP'");
+            printw("TRYING TO WRITE OVER PREVIOUSLY EXISTING TILE in variable 'WORLDMAP' with function 'CREATEMAP'");
         }
 }
 
@@ -689,7 +784,7 @@ void fillMap(tMapTile *m, int n, int s, int e, int w)
     drawRect(m, '^', 6, 3, 5, 1);
     sprinkleDraw(m, '$', getRandMnMx(0, 10));
     drawBorder(m, '+');
-    drawRoads(m, n, s, e, w, 'p','c','#','+','=');
+    drawRoads(m, n, s, e, w, 'M','C','#','+','=');
 
 }
 
@@ -763,7 +858,7 @@ void drawRoads(tMapTile *m, int n, int s, int e, int w, char pokM, char pokC, ch
     int posX = m->worldX-200;
     int posY = m->worldY-200;
     int manhattanDist = abs(posX) + abs(posY);
-    // printf("\ndistance: %d\n", manhattanDist);
+    // printw("\ndistance: %d\n", manhattanDist);
     double percent = 1.0;
     //generate marts with coords
     if(manhattanDist > 200){
@@ -773,7 +868,7 @@ void drawRoads(tMapTile *m, int n, int s, int e, int w, char pokM, char pokC, ch
         percent = ((-45*manhattanDist)/200+50)/(double)100;
     }
 
-    // printf("\npercent: %f\n", percent);
+    // printw("\npercent: %f\n", percent);
 
     if(probability(percent)){
         martsOnRoad(m, westG, eastG, breakH, pokM, pokC);
@@ -870,6 +965,8 @@ int getRandLwSz(int lowest, int size) {
 
 
 void printMap(tMapTile *m) {
+    clear();
+    printw("%s\n", errorMsg);
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             char c = m->map[i][j];
@@ -895,19 +992,24 @@ void printMap(tMapTile *m) {
                     {c = ct;}
             }
 
-            printf("%c", c);
+            printw("%c", c);
         }
-        printf("\n");
+        printw("\n");
     }
-    printf("\n");
+    printw("\n");
+    refresh();
 }
 
 void printMapRaw(tMapTile *m) {
+    clear();
+
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
-            printf("%c", m->map[i][j]);
+            printw("%c", m->map[i][j]);
         }
-        printf("\n");
+        printw("\n");
     }
+
+    refresh();
 }
 

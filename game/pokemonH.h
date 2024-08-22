@@ -1,16 +1,21 @@
-#include <stdio.h>
+#ifndef POKEMONH_H
+#define POKEMONH_H
+
+// #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include <limits.h>
-#include <windows.h>
+// #include <windows.h>
+#include <unistd.h>
+#include <ncurses.h>
 
 #define HEIGHT 21
 #define WIDTH 80
 #define WORLDSIZE 401
 #define NUMTERRAINTYPES 11
 #define DEFAULT_NUM_TRAINERS 5
-#define NPC_SPAWN_ATTEMPTS 5
+#define NPC_SPAWN_ATTEMPTS 10
 
 
 
@@ -26,6 +31,7 @@ typedef struct characterT{
     int nextTurn;
     int turnOrder;
     int currDir;
+    int defeated;
     
     void (*moveFunct)(struct tMapTile* m, struct characterT* c);
     //pointer to generic movement function
@@ -38,6 +44,8 @@ typedef struct tMapTile
     int n,w,s,e;
     char map[HEIGHT][WIDTH];
     characterT* cMap[HEIGHT][WIDTH];//TODO
+    characterT** npcList;
+    int numNPCs;
     int characterOrder;
 
 } tMapTile;
@@ -65,21 +73,22 @@ typedef struct heap_t
 
 
 
-tMapTile* worldMap[401][401];
-int adjVer[8];
-int adjHor[8];
+extern tMapTile* worldMap[401][401];
+extern int adjVer[9];
+extern int adjHor[9];
 
-int playerW[NUMTERRAINTYPES];
-int hikerW[NUMTERRAINTYPES];
-int rivalW[NUMTERRAINTYPES];
-int swimmerW[NUMTERRAINTYPES];
-int otherW[NUMTERRAINTYPES];
-char terrTypes[NUMTERRAINTYPES];
+extern int playerW[NUMTERRAINTYPES];
+extern int hikerW[NUMTERRAINTYPES];
+extern int rivalW[NUMTERRAINTYPES];
+extern int otherW[NUMTERRAINTYPES];
+extern char terrTypes[NUMTERRAINTYPES];
 
-dNode_t* hikerPMap[HEIGHT][WIDTH];
-dNode_t* rivalPMap[HEIGHT][WIDTH];
+extern dNode_t* hikerPMap[HEIGHT][WIDTH];
+extern dNode_t* rivalPMap[HEIGHT][WIDTH];
 
-characterT* player;
+extern characterT* player;
+extern int quitGame;
+extern char errorMsg[];
 
 
 
@@ -131,3 +140,32 @@ int dijkstra(tMapTile* m, int weight[], dNode_t* pMap[HEIGHT][WIDTH]);
 //character generation
 characterT* spawnCharacterHelper(char ch, tMapTile* m, heap_t* h, int y, int x, int order);
 int playerExists();
+
+//NPC Stuff
+int nextCharacterOrder(tMapTile *m);
+void printCharacter(characterT* c);
+void printCMap(tMapTile* m);
+void updateCPosition(tMapTile *m, characterT *c, int nY, int nX);
+int rotateDir(int dir, int rot);
+void sentryMove(tMapTile* m, characterT* c);
+void pacerMove(tMapTile* m, characterT* c);
+void explorerMove(tMapTile* m, characterT* c);
+void wandererMove(tMapTile* m, characterT* c);
+void hikerMove(tMapTile* m, characterT* c);
+void rivalMove(tMapTile* m, characterT* c);
+void playerMove(tMapTile* m, characterT* c);
+void swimmerMove(tMapTile* m, characterT* c);
+void npcRunner();
+characterT* spawnPlayer(tMapTile* m, heap_t* h);
+characterT* spawnNPC(char ch, tMapTile* m, heap_t* h, int y, int x);
+int cIsPlayer(characterT* c);
+char getRandNPCType();
+void spawnAllNPCs(int num, tMapTile* m, heap_t* h);
+
+//Keyboard input stuff (1.5)
+void pokemonBattle(tMapTile* m, characterT* npc);
+void keyboardInput(tMapTile *m, characterT *pc);
+void setMessage(char* string);
+
+
+#endif
