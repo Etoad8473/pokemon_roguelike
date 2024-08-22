@@ -2,6 +2,7 @@
 #define POKEMONH_H
 
 // #include <stdio.h>
+#include <cstring>
 #include <cstdlib>
 #include <time.h>
 #include <string.h>
@@ -9,6 +10,11 @@
 // #include <windows.h>
 #include <unistd.h>
 #include <ncurses.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 #define HEIGHT 21
 #define WIDTH 80
@@ -106,6 +112,7 @@ class Map
 
 
 
+
 extern Map* worldMap[401][401];
 extern int adjVer[9];
 extern int adjHor[9];
@@ -143,23 +150,23 @@ Map* flyToTile(Map* prevM, int y, int x, char newGate);
 int probability(double percent);
 void printMapRaw(Map *m);
 
+
 //3:Dijkstra stuff
+
 // void temporaryInsert(Node *d, Heap* h); //deprecated
 void printDijNode(Node *d);
 void printHeap(Heap* h);
 void initPathMap(Node* pMap[HEIGHT][WIDTH]);
 void resetPathMap(Node* pMap[HEIGHT][WIDTH]);
 void printPathMap(Node* pMap[HEIGHT][WIDTH]);
-
 Node* createDNode(int y, int x, int weight, int status);//CONSTRUCTOR
-
 void printHeapShort(Heap* h, int num);
 int getTerrainWeight(int weight[], Map* m, int y, int x);
 int dijkstra(Map* m, int weight[], Node* pMap[HEIGHT][WIDTH]);
 
 
-
 //4: NPC Stuff
+
 Character* spawnCharacterHelper(char ch, Map* m, int y, int x, int order);
 int playerExists();
 int nextCharacterOrder(Map *m);
@@ -180,7 +187,9 @@ int cIsPlayer(Character* c);
 char getRandNPCType();
 void spawnAllNPCs(int num, Map* m);
 
+
 //5: Keyboard input stuff (1.5)
+
 void pokemonBattle_cutscene(Map* m, Character* npc);
 Map* keyboardInput(Map *m, Character *pc);
 //void setMessage(char* string); //TODO
@@ -189,9 +198,20 @@ void pokemart_cutScene(Map *m, Character *pc);
 void trainersList_cutscene(Map* m, Character* pc);
 void npcPrintStatement(Map* m, Character* pc, Character* npc);
 
+
 //6: better mapTile traversal
+
 Map* initializeGame(int numNPCs);
 void sendPlayerToNewMap(Map* oldM, Map* newM);
+
+
+//7: csv parsing
+
+// int csvRunner(int argc, char* argv[]);
+int mainParseCSVs();
+
+
+
 
 
 #endif

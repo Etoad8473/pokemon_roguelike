@@ -16,11 +16,12 @@ Player* PLAYER = NULL;
 
 
 
-int main(int argc, char* argv[])
-{
+// int main(int argc, char* argv[])
+// {
     
-    gameRunner(-1); //defined in 5_Ncurses.cpp
+//     csvRunner(argc, argv); //defined in 7_pokedex.cpp
 
-    return 0;
+//     return 0;
 
-}
+// }
+

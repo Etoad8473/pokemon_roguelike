@@ -1,0 +1,21 @@
+1.07 Instructions
+
+In pyrite:
+cd /share/cs327/pokedex/pokedex/data/csv
+
+ASSIGNMENT:
+parse
+
+
+make a class with all the fields of the pokemon csv
+
+read in first line n throw away
+pass all lines into constructor of object of this type
+throw that into a vector (arrayList)
+
+
+moveTypes:
+
+
+empty fields need to be handled
+use INT_MAX as a placeholder for empty fields
